@@ -183,9 +183,9 @@ func (s *Subscription) RenderStyle() string {
 	return s.Flags.RenderStyle
 }
 
-func (s *Subscription) excludedRepoForSub(repo *github.Repository) bool {
+func (s *Subscription) excludedRepoForSub(repoFullName string) bool {
 	for _, repository := range s.Flags.ExcludeRepository {
-		if repository == repo.GetFullName() {
+		if repository == repoFullName {
 			return true
 		}
 	}
@@ -205,18 +205,18 @@ func (p *Plugin) Subscribe(ctx context.Context, githubClient *github.Client, use
 	}
 
 	if flags.ExcludeOrgMembers && !p.isOrganizationLocked() {
-		return errors.New("Unable to set --exclude-org-member flag. The GitHub plugin is not locked to a single organization.")
+		return errors.New("Unable to set --exclude-org-member flag. The Forgejo plugin is not locked to a single organization.")
 	}
 
 	if flags.IncludeOnlyOrgMembers && !p.isOrganizationLocked() {
-		return errors.New("Unable to set --include-only-org-members flag. The GitHub plugin is not locked to a single organization.")
+		return errors.New("Unable to set --include-only-org-members flag. The Forgejo plugin is not locked to a single organization.")
 	}
 
 	var err, cErr error
 
 	if repo == "" {
 		var ghOrg *github.Organization
-		cErr = p.useGitHubClient(&GitHubUserInfo{UserID: userID}, func(info *GitHubUserInfo, token *oauth2.Token) error {
+		cErr = p.useGitHubClient(&ForgejoUserInfo{UserID: userID}, func(info *ForgejoUserInfo, token *oauth2.Token) error {
 			ghOrg, _, err = githubClient.Organizations.Get(ctx, owner)
 			if err != nil {
 				return err
@@ -232,7 +232,7 @@ func (p *Plugin) Subscribe(ctx context.Context, githubClient *github.Client, use
 		}
 	} else {
 		var ghRepo *github.Repository
-		cErr = p.useGitHubClient(&GitHubUserInfo{UserID: userID}, func(info *GitHubUserInfo, token *oauth2.Token) error {
+		cErr = p.useGitHubClient(&ForgejoUserInfo{UserID: userID}, func(info *ForgejoUserInfo, token *oauth2.Token) error {
 			ghRepo, _, err = githubClient.Repositories.Get(ctx, owner, repo)
 			if err != nil {
 				return err
@@ -360,9 +360,8 @@ func (p *Plugin) StoreSubscriptions(s *Subscriptions) error {
 	})
 }
 
-func (p *Plugin) GetSubscribedChannelsForRepository(repo *github.Repository) []*Subscription {
-	name := repo.GetFullName()
-	name = strings.ToLower(name)
+func (p *Plugin) GetSubscribedChannelsForRepository(repoFullName string, repoIsPrivate bool) []*Subscription {
+	name := strings.ToLower(repoFullName)
 	org := strings.Split(name, "/")[0]
 	subs, err := p.GetSubscriptions()
 	if err != nil {
@@ -370,7 +369,7 @@ func (p *Plugin) GetSubscribedChannelsForRepository(repo *github.Repository) []*
 	}
 
 	// Add subscriptions for the specific repo
-	subsForRepo := []*Subscription{}
+	var subsForRepo []*Subscription
 	if subs.Repositories[name] != nil {
 		subsForRepo = append(subsForRepo, subs.Repositories[name]...)
 	}
@@ -385,13 +384,13 @@ func (p *Plugin) GetSubscribedChannelsForRepository(repo *github.Repository) []*
 		return nil
 	}
 
-	subsToReturn := []*Subscription{}
+	var subsToReturn []*Subscription
 
 	for _, sub := range subsForRepo {
-		if repo.GetPrivate() && !p.permissionToRepo(sub.CreatorID, name) {
+		if repoIsPrivate && !p.permissionToRepo(sub.CreatorID, name) {
 			continue
 		}
-		if sub.excludedRepoForSub(repo) {
+		if sub.excludedRepoForSub(repoFullName) {
 			continue
 		}
 		subsToReturn = append(subsToReturn, sub)

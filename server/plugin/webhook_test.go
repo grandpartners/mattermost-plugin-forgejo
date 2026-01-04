@@ -488,7 +488,7 @@ func TestHandleCommentMentionNotification(t *testing.T) {
 					return ok
 				})).DoAndReturn(setByteValue("otherUserID")).Times(1)
 				mockKVStore.EXPECT().Get("otherUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
 				mockAPI.On("GetDirectChannel", "otherUserID", "mockBotID").Return(nil, &model.AppError{Message: "error getting channel"}).Times(1)
@@ -503,13 +503,13 @@ func TestHandleCommentMentionNotification(t *testing.T) {
 					return ok
 				})).DoAndReturn(setByteValue("otherUserID")).Times(1)
 				mockKVStore.EXPECT().Get("otherUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
 				mockAPI.On("GetDirectChannel", "otherUserID", "mockBotID").Return(&model.Channel{Id: "mockChannelID"}, nil).Times(1)
 				mockAPI.On("CreatePost", mock.Anything).Return(nil, &model.AppError{Message: "error creating post"}).Times(1)
 				mockAPI.On("LogWarn", "Error creating mention post", "error", "error creating post").Times(1)
-				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to GitHub first.").Times(1)
+				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to Forgejo first.").Times(1)
 			},
 		},
 		{
@@ -521,12 +521,12 @@ func TestHandleCommentMentionNotification(t *testing.T) {
 					return ok
 				})).DoAndReturn(setByteValue("otherUserID")).Times(1)
 				mockKVStore.EXPECT().Get("otherUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
 				mockAPI.On("GetDirectChannel", "otherUserID", "mockBotID").Return(&model.Channel{Id: "mockChannelID"}, nil).Times(1)
 				mockAPI.On("CreatePost", mock.Anything).Return(&model.Post{}, nil).Times(1)
-				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to GitHub first.")
+				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to Forgejo first.")
 			},
 		},
 	}
@@ -604,12 +604,12 @@ func TestHandleCommentAuthorNotification(t *testing.T) {
 					return ok
 				})).Return(nil).Times(1)
 				mockKVStore.EXPECT().Get("authorUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
 				mockAPI.On("GetDirectChannel", "authorUserID", "mockBotID").Return(&model.Channel{Id: "mockChannelID"}, nil).Times(1)
 				mockAPI.On("CreatePost", mock.Anything).Return(&model.Post{}, nil, &model.AppError{Message: "error creating post"}).Times(1)
-				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to GitHub first.").Times(1)
+				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to Forgejo first.").Times(1)
 			},
 		},
 		{
@@ -625,10 +625,10 @@ func TestHandleCommentAuthorNotification(t *testing.T) {
 					return ok
 				})).Return(nil).Times(1)
 				mockKVStore.EXPECT().Get("authorUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
-				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to GitHub first.").Times(1)
+				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to Forgejo first.").Times(1)
 				mockAPI.On("GetDirectChannel", "authorUserID", "mockBotID").Return(&model.Channel{Id: "mockChannelID"}, nil).Times(1)
 				mockAPI.On("CreatePost", mock.Anything).Return(&model.Post{}, nil).Times(1)
 			},
@@ -700,7 +700,7 @@ func TestHandleCommentAssigneeNotification(t *testing.T) {
 					return ok
 				})).DoAndReturn(setByteValue("assigneeUserID")).Times(1)
 				mockKVStore.EXPECT().Get("assigneeUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
 			},
@@ -714,7 +714,7 @@ func TestHandleCommentAssigneeNotification(t *testing.T) {
 					return ok
 				})).DoAndReturn(setByteValue("assigneeUserID")).Times(1)
 				mockKVStore.EXPECT().Get("assigneeUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
 			},
@@ -769,12 +769,12 @@ func TestHandlePullRequestNotification(t *testing.T) {
 					return ok
 				})).DoAndReturn(setByteValue("authorUserID")).Times(1)
 				mockKVStore.EXPECT().Get("authorUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
 				mockAPI.On("GetDirectChannel", "authorUserID", "mockBotID").Return(&model.Channel{Id: "mockChannelID"}, nil)
 				mockAPI.On("CreatePost", mock.Anything).Return(&model.Post{}, nil).Times(1)
-				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to GitHub first.").Times(1)
+				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to Forgejo first.").Times(1)
 			},
 		},
 		{
@@ -803,10 +803,10 @@ func TestHandlePullRequestNotification(t *testing.T) {
 				mockAPI.On("GetDirectChannel", "assigneeUserID", "mockBotID").Return(&model.Channel{Id: "mockChannelID"}, nil)
 				mockAPI.On("CreatePost", mock.Anything).Return(&model.Post{}, nil).Times(1)
 				mockKVStore.EXPECT().Get("assigneeUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
-				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to GitHub first.").Times(1)
+				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to Forgejo first.").Times(1)
 			},
 		},
 		{
@@ -820,10 +820,10 @@ func TestHandlePullRequestNotification(t *testing.T) {
 				mockAPI.On("GetDirectChannel", "requestedUserID", "mockBotID").Return(&model.Channel{Id: "mockChannelID"}, nil)
 				mockAPI.On("CreatePost", mock.Anything).Return(&model.Post{}, nil).Times(1)
 				mockKVStore.EXPECT().Get("requestedUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
-				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to GitHub first.").Times(1)
+				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to Forgejo first.").Times(1)
 			},
 		},
 		{
@@ -873,7 +873,7 @@ func TestHandleIssueNotification(t *testing.T) {
 					return ok
 				})).DoAndReturn(setByteValue("authorUserID")).Times(1)
 				mockKvStore.EXPECT().Get("authorUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
 			},
@@ -971,7 +971,7 @@ func TestHandlePullRequestReviewNotification(t *testing.T) {
 					return ok
 				})).DoAndReturn(setByteValue("authorUserID")).Times(1)
 				mockKvStore.EXPECT().Get("authorUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).DoAndReturn(setByteValue("authorUserID")).Times(1)
 			},
@@ -987,10 +987,10 @@ func TestHandlePullRequestReviewNotification(t *testing.T) {
 				mockAPI.On("GetDirectChannel", "authorUserID", "mockBotID").Return(nil, &model.AppError{Message: "error getting channel"}).Times(1)
 				mockAPI.On("LogWarn", "Couldn't get bot's DM channel", "userID", "authorUserID", "error", "error getting channel")
 				mockKvStore.EXPECT().Get("authorUserID_githubtoken", mock.MatchedBy(func(val interface{}) bool {
-					_, ok := val.(**GitHubUserInfo)
+					_, ok := val.(**ForgejoUserInfo)
 					return ok
 				})).Return(nil).Times(1)
-				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to GitHub first.")
+				mockAPI.On("LogWarn", "Failed to get github user info", "error", "Must connect user account to Forgejo first.")
 			},
 		},
 	}
@@ -1309,7 +1309,7 @@ func newPlugin(userID string, gitHubURL string) *Plugin {
 	token, _ := generateSecret()
 	encryptionKey, _ := generateSecret()
 	encryptedToken, _ := encrypt([]byte(encryptionKey), token)
-	_, _ = p.store.Set(userID+githubTokenKey, GitHubUserInfo{
+	_, _ = p.store.Set(userID+forgejoTokenKey, ForgejoUserInfo{
 		UserID: userID,
 		Token: &oauth2.Token{
 			AccessToken: encryptedToken,
@@ -1317,10 +1317,10 @@ func newPlugin(userID string, gitHubURL string) *Plugin {
 	})
 	p.setConfiguration(&Configuration{
 		EncryptionKey:       encryptionKey,
-		GitHubOrg:           gitHubOrginization,
+		ForgejoOrg:          gitHubOrginization,
 		WebhookSecret:       webhookSecret,
-		EnterpriseBaseURL:   gitHubURL,
-		EnterpriseUploadURL: gitHubURL,
+		BaseURL:             gitHubURL,
+		UploadURL:           gitHubURL,
 	})
 
 	_ = p.AddSubscription(
@@ -1338,7 +1338,7 @@ func newPlugin(userID string, gitHubURL string) *Plugin {
 
 func mockGitHubServer(user string) *httptest.Server {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != fmt.Sprintf("/api/v3/orgs/%v/members/%v", gitHubOrginization, user) {
+		if r.URL.Path != fmt.Sprintf("/api/v1/orgs/%v/members/%v", gitHubOrginization, user) {
 			http.Error(w, "Not found", http.StatusNotFound)
 			return
 		}
@@ -1373,7 +1373,7 @@ func TestIncludeOnlyOrgMembers(t *testing.T) {
 			want:       false,
 		},
 		{
-			name: "Failed to get GitHub Client",
+			name: "Failed to get Forgejo Client",
 			user: github.User{
 				Login: github.String(orgMember),
 			},

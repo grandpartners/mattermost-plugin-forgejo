@@ -19,52 +19,8 @@ import (
 	"unicode"
 
 	"github.com/mattermost/mattermost/server/public/pluginapi"
-
-	"github.com/google/go-github/v54/github"
 	"github.com/pkg/errors"
 )
-
-func getMentionSearchQuery(username string, orgs []string) string {
-	return buildSearchQuery("is:open mentions:%v archived:false %v", username, orgs)
-}
-
-func getReviewSearchQuery(username string, orgs []string) string {
-	return buildSearchQuery("is:pr is:open review-requested:%v archived:false %v", username, orgs)
-}
-
-func getYourPrsSearchQuery(username string, orgs []string) string {
-	return buildSearchQuery("is:pr is:open author:%v archived:false %v", username, orgs)
-}
-
-func getYourAssigneeSearchQuery(username string, orgs []string) string {
-	return buildSearchQuery("is:open assignee:%v archived:false %v", username, orgs)
-}
-
-func getIssuesSearchQuery(searchValue, searchTerm string) string {
-	query := "is:open is:issue archived:false %v %v"
-	searchField := ""
-	if len(searchValue) != 0 {
-		searchField = fmt.Sprintf("org:%v", searchValue)
-	}
-
-	// get all the issues which involve the user in case no organizational lock is set
-	// else {
-	// 	searchField = "involves:@me"
-	// }
-
-	return fmt.Sprintf(query, searchField, searchTerm)
-}
-
-func buildSearchQuery(query, username string, orgs []string) string {
-	orgField := ""
-	for _, org := range orgs {
-		if len(org) != 0 {
-			orgField = fmt.Sprintf("%s org:%s", orgField, org)
-		}
-	}
-
-	return fmt.Sprintf(query, username, orgField)
-}
 
 func pad(src []byte) []byte {
 	padding := aes.BlockSize - len(src)%aes.BlockSize
@@ -145,26 +101,36 @@ func parseOwnerAndRepo(full, baseURL string) (string, string) {
 	return owner, repo
 }
 
-func parseGitHubUsernamesFromText(text string) []string {
+func parseForgejoUsernamesFromText(text string) []string {
 	usernameMap := map[string]bool{}
 	usernames := []string{}
 
 	for _, word := range strings.FieldsFunc(text, func(c rune) bool {
-		return !(c == '-' || c == '@' || unicode.IsLetter(c) || unicode.IsNumber(c))
+		return !(c == '-' || c == '@' || c == '.' || unicode.IsLetter(c) || unicode.IsNumber(c))
 	}) {
+		word = strings.Trim(word, ".")
 		if len(word) < 2 || word[0] != '@' {
 			continue
 		}
 
+		// Skip if starts or ends with hyphen
 		if word[1] == '-' || word[len(word)-1] == '-' {
 			continue
 		}
-
+		// Skip if contains consecutive hyphens
 		if strings.Contains(word, "--") {
 			continue
 		}
-
+		// Skip if contains consecutive dots
+		if strings.Contains(word, "..") {
+			continue
+		}
 		name := word[1:]
+		// Skip if starts with dot
+		if name[0] == '.' {
+			continue
+		}
+
 		if !usernameMap[name] {
 			usernames = append(usernames, name)
 			usernameMap[name] = true
@@ -174,12 +140,16 @@ func parseGitHubUsernamesFromText(text string) []string {
 	return usernames
 }
 
+func parseGitHubUsernamesFromText(text string) []string {
+	return parseForgejoUsernamesFromText(text)
+}
+
 func fixGithubNotificationSubjectURL(url, issueNum string) string {
 	url = strings.Replace(url, "api.", "", 1)
 	url = strings.Replace(url, "repos/", "", 1)
 	url = strings.Replace(url, "/pulls/", "/pull/", 1)
 	url = strings.Replace(url, "/commits/", "/commit/", 1)
-	url = strings.Replace(url, "/api/v3", "", 1)
+	url = strings.Replace(url, "/api/v1", "", 1)
 	url = strings.Replace(url, "comments/", issueNum+"#issuecomment-", 1)
 	return url
 }
@@ -329,15 +299,15 @@ func getCodeMarkdown(user, repo, repoPath, word, lines string, isTruncated bool)
 }
 
 // getToDoDisplayText returns the text to be displayed in todo listings.
-func getToDoDisplayText(baseURL, title, url, notifType string, repository *github.Repository) string {
+func getToDoDisplayText(baseURL, title, url, notifType string, repository *FRepository) string {
 	var owner, repo, repoURL, titlePart string
 	if repository == nil {
 		owner, repo = parseOwnerAndRepo(url, baseURL)
 		repoURL = fmt.Sprintf("%s%s/%s", baseURL, owner, repo)
 	} else {
-		owner = repository.GetOwner().GetLogin()
-		repo = repository.GetName()
-		repoURL = repository.GetHTMLURL()
+		owner = *repository.Owner.Login
+		repo = *repository.Name
+		repoURL = *repository.HTMLURL
 	}
 
 	repoWords := strings.Split(repo, "-")

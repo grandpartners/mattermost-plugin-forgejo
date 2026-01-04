@@ -19,7 +19,7 @@ const mmGithubHandle = 'MM-Github-Plugin';
 
 export default {
     connected: () => {
-        test.describe('/github me', () => {
+        test.describe('/forgejo me', () => {
             test('from connected account', async ({pages, page, pw}) => {
                 const {adminClient, adminUser} = await pw.getAdminClient();
                 if (adminUser === null) {
@@ -32,7 +32,7 @@ export default {
                 const c = new pages.ChannelsPage(page);
 
                 // # Run comand
-                await c.postMessage('/github me');
+                await c.postMessage('/forgejo me');
                 await c.sendMessage();
 
                 // # Wait for new messages to ensure the last post is the one we want
@@ -43,7 +43,7 @@ export default {
                 const postId = await post.getId();
 
                 // * Verify that message is sent by the github bot
-                await expect(getPostAuthor(post)).toHaveText('github');
+                await expect(getPostAuthor(post)).toHaveText('forgejo');
                 await expect(getBotTagFromPost(post)).toBeVisible();
 
                 // * assert intro message
@@ -64,7 +64,7 @@ export default {
         });
     },
     unconnected: () => {
-        test.describe('/github me', () => {
+        test.describe('/forgejo me', () => {
             test('from non connected account', async ({pages, page, pw}) => {
                 const {adminClient, adminUser} = await pw.getAdminClient();
                 if (adminUser === null) {
@@ -77,7 +77,7 @@ export default {
                 const c = new pages.ChannelsPage(page);
 
                 // # Run comand
-                await c.postMessage('/github me');
+                await c.postMessage('/forgejo me');
                 await c.sendMessage();
 
                 // # Wait for new messages to ensure the last post is the one we want
@@ -88,7 +88,7 @@ export default {
                 const postId = await post.getId();
 
                 // * Verify that message is sent by the github bot
-                await expect(getPostAuthor(post)).toHaveText('github');
+                await expect(getPostAuthor(post)).toHaveText('forgejo');
                 await expect(getBotTagFromPost(post)).toBeVisible();
 
                 // * assert failure message
@@ -103,7 +103,7 @@ export default {
         });
     },
     noSetup: () => {
-        test.describe('/github me', () => {
+        test.describe('/forgejo me', () => {
             test('before doing setup', async ({pages, page, pw}) => {
                 const {adminClient, adminUser} = await pw.getAdminClient();
                 if (adminUser === null) {
@@ -116,7 +116,7 @@ export default {
                 const c = new pages.ChannelsPage(page);
 
                 // # Run comand
-                await c.postMessage('/github me');
+                await c.postMessage('/forgejo me');
                 await c.sendMessage();
 
                 // # Wait for new messages to ensure the last post is the one we want
@@ -127,7 +127,7 @@ export default {
                 const postId = await post.getId();
 
                 // * Verify that message is sent by the github bot
-                await expect(getPostAuthor(post)).toHaveText('github');
+                await expect(getPostAuthor(post)).toHaveText('forgejo');
                 await expect(getBotTagFromPost(post)).toBeVisible();
 
                 // * assert failure message

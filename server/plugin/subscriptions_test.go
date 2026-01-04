@@ -198,10 +198,10 @@ func TestSubscribe(t *testing.T) {
 		errMsg string
 	}{
 		{
-			name:   "Return error if GitHub organization is not set when --include-only-org-members flag is true",
+			name:   "Return error if Forgejo organization is not set when --include-only-org-members flag is true",
 			flags:  SubscriptionFlags{IncludeOnlyOrgMembers: true},
 			plugin: NewPlugin(),
-			errMsg: "Unable to set --include-only-org-members flag. The GitHub plugin is not locked to a single organization.",
+			errMsg: "Unable to set --include-only-org-members flag. The Forgejo plugin is not locked to a single organization.",
 		},
 	}
 

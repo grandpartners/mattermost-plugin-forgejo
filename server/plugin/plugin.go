@@ -25,18 +25,13 @@ import (
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/bot/logger"
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/bot/poster"
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/telemetry"
-
-	"github.com/mattermost/mattermost-plugin-github/server/plugin/graphql"
 )
 
 const (
-	githubTokenKey       = "_githubtoken"
-	githubOauthKey       = "githuboauthkey_"
-	githubUsernameKey    = "_githubusername"
-	githubPrivateRepoKey = "_githubprivate"
-
-	mm34646MutexKey = "mm34646_token_reset_mutex"
-	mm34646DoneKey  = "mm34646_token_reset_done"
+	forgejoTokenKey       = "_forgejotoken"
+	forgejoOauthKey       = "forgejooauthkey_"
+	forgejoUsernameKey    = "_forgejousername"
+	forgejoPrivateRepoKey = "_forgejoprivate"
 
 	wsEventConnect    = "connect"
 	wsEventDisconnect = "disconnect"
@@ -45,19 +40,16 @@ const (
 	wsEventRefresh      = "refresh"
 	wsEventCreateIssue  = "createIssue"
 
-	WSEventRefresh = "refresh"
+	settingButtonsTeam       = "team"
+	settingNotifications     = "notifications"
+	settingTeamNotifications = "team-review-notifications"
+	settingReminders         = "reminders"
+	settingOn                = "on"
+	settingOff               = "off"
+	settingOnChange          = "on-change"
+	settingExclude           = "exclude"
 
-	settingButtonsTeam   = "team"
-	settingNotifications = "notifications"
-	settingReminders     = "reminders"
-	settingOn            = "on"
-	settingOff           = "off"
-	settingOnChange      = "on-change"
-
-	notificationReasonSubscribed = "subscribed"
-	dailySummary                 = "_dailySummary"
-
-	chimeraGitHubAppIdentifier = "plugin-github"
+	dailySummary = "_dailySummary"
 
 	invalidTokenError = "401 Bad credentials" //#nosec G101 -- False positive
 )
@@ -89,8 +81,6 @@ type Plugin struct {
 	// setConfiguration for usage.
 	configuration *Configuration
 
-	chimeraURL string
-
 	router *mux.Router
 
 	telemetryClient telemetry.Client
@@ -102,8 +92,8 @@ type Plugin struct {
 
 	CommandHandlers map[string]CommandHandleFunc
 
-	// githubPermalinkRegex is used to parse github permalinks in post messages.
-	githubPermalinkRegex *regexp.Regexp
+	// forgejoPermalinkRegex is used to parse forgejo permalinks in post messages.
+	forgejoPermalinkRegex *regexp.Regexp
 
 	webhookBroker *WebhookBroker
 	oauthBroker   *OAuthBroker
@@ -113,9 +103,8 @@ type Plugin struct {
 
 // NewPlugin returns an instance of a Plugin.
 func NewPlugin() *Plugin {
-	p := &Plugin{
-		githubPermalinkRegex: regexp.MustCompile(`https?://(?P<haswww>www\.)?github\.com/(?P<user>[\w-]+)/(?P<repo>[\w-.]+)/blob/(?P<commit>[\w-]+)/(?P<path>[\w-/.]+)#(?P<line>[\w-]+)?`),
-	}
+	p := &Plugin{}
+	p.updatePermalinkRegex((&Configuration{}).getBaseURL())
 
 	p.CommandHandlers = map[string]CommandHandleFunc{
 		"subscriptions": p.handleSubscriptions,
@@ -134,6 +123,17 @@ func NewPlugin() *Plugin {
 
 	p.createGithubEmojiMap()
 	return p
+}
+
+// updatePermalinkRegex builds a regex that matches Forgejo permalinks using the configured base URL.
+func (p *Plugin) updatePermalinkRegex(baseURL string) {
+	host := "forgejo.com"
+	if parsed, err := url.Parse(baseURL); err == nil && parsed.Hostname() != "" {
+		host = parsed.Hostname()
+	}
+
+	pattern := fmt.Sprintf(`https?://(?P<haswww>www\.)?%s/(?P<user>[\w-]+)/(?P<repo>[\w-.]+)/blob/(?P<commit>[\w-]+)/(?P<path>[\w-/.]+)#(?P<line>[\w-]+)?`, regexp.QuoteMeta(host))
+	p.forgejoPermalinkRegex = regexp.MustCompile(pattern)
 }
 
 func (p *Plugin) createGithubEmojiMap() {
@@ -168,7 +168,7 @@ func (p *Plugin) ensurePluginAPIClient() {
 }
 
 func (p *Plugin) GetGitHubClient(ctx context.Context, userID string) (*github.Client, error) {
-	userInfo, apiErr := p.getGitHubUserInfo(userID)
+	userInfo, apiErr := p.getForgejoUserInfo(userID)
 	if apiErr != nil {
 		return nil, apiErr
 	}
@@ -176,14 +176,19 @@ func (p *Plugin) GetGitHubClient(ctx context.Context, userID string) (*github.Cl
 	return p.githubConnectUser(ctx, userInfo), nil
 }
 
-func (p *Plugin) githubConnectUser(_ context.Context, info *GitHubUserInfo) *github.Client {
+func (p *Plugin) githubConnectUser(_ context.Context, info *ForgejoUserInfo) *github.Client {
 	tok := *info.Token
 	return p.githubConnectToken(tok)
 }
 
-func (p *Plugin) graphQLConnect(info *GitHubUserInfo) *graphql.Client {
-	conf := p.getConfiguration()
-	return graphql.NewClient(p.client.Log, p.configuration.getOrganizations, *info.Token, info.GitHubUsername, conf.GitHubOrg, conf.EnterpriseBaseURL)
+func (p *Plugin) forgejoConnect(info *ForgejoUserInfo) *http.Client {
+	config, err := p.getOAuthConfig()
+	if err != nil {
+		p.client.Log.Error("Failed to create OAuth config", "error", err.Error())
+		return nil
+	}
+	tok := *info.Token
+	return config.Client(context.Background(), &tok)
 }
 
 func (p *Plugin) githubConnectToken(token oauth2.Token) *github.Client {
@@ -191,7 +196,7 @@ func (p *Plugin) githubConnectToken(token oauth2.Token) *github.Client {
 
 	client, err := GetGitHubClient(token, config)
 	if err != nil {
-		p.client.Log.Warn("Failed to create GitHub client", "error", err.Error())
+		p.client.Log.Warn("Failed to create Forgejo client", "error", err.Error())
 		return nil
 	}
 
@@ -199,22 +204,24 @@ func (p *Plugin) githubConnectToken(token oauth2.Token) *github.Client {
 }
 
 func GetGitHubClient(token oauth2.Token, config *Configuration) (*github.Client, error) {
-	ts := oauth2.StaticTokenSource(&token)
-	tc := oauth2.NewClient(context.Background(), ts)
-
+	oauthConfig, err := getOauthConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	tc := oauthConfig.Client(context.Background(), &token)
 	return getGitHubClient(tc, config)
 }
 
 func getGitHubClient(authenticatedClient *http.Client, config *Configuration) (*github.Client, error) {
-	if config.EnterpriseBaseURL == "" || config.EnterpriseUploadURL == "" {
+	if config.BaseURL == "" || config.UploadURL == "" {
 		return github.NewClient(authenticatedClient), nil
 	}
-	baseURL, err := url.JoinPath(config.EnterpriseBaseURL, "api", "v3")
+	baseURL, err := url.JoinPath(config.BaseURL, "api", "v1")
 	if err != nil {
 		return nil, err
 	}
 
-	uploadURL, err := url.JoinPath(config.EnterpriseUploadURL, "api", "v3")
+	uploadURL, err := url.JoinPath(config.UploadURL, "api", "v1")
 	if err != nil {
 		return nil, err
 	}
@@ -223,6 +230,8 @@ func getGitHubClient(authenticatedClient *http.Client, config *Configuration) (*
 	if err != nil {
 		return nil, err
 	}
+
+	client.BaseURL.Path = "/api/v1/"
 
 	return client, nil
 }
@@ -263,13 +272,6 @@ func (p *Plugin) OnActivate() error {
 		return errors.Wrap(err, "failed to set default configuration")
 	}
 
-	p.registerChimeraURL()
-	if p.getConfiguration().UsePreregisteredApplication && p.chimeraURL == "" {
-		return errors.New("cannot use pre-registered application if Chimera URL is not set or empty. " +
-			"For now using pre-registered application is intended for Cloud instances only. " +
-			"If you are running on-prem disable the setting and use a custom application, otherwise set PluginSettings.ChimeraOAuthProxyURL")
-	}
-
 	p.initializeAPI()
 	p.initializeTelemetry()
 
@@ -277,13 +279,13 @@ func (p *Plugin) OnActivate() error {
 	p.oauthBroker = NewOAuthBroker(p.sendOAuthCompleteEvent)
 
 	botID, err := p.client.Bot.EnsureBot(&model.Bot{
-		OwnerId:     Manifest.Id, // Workaround to support older server version affected by https://github.com/mattermost/mattermost-server/pull/21560
-		Username:    "github",
-		DisplayName: "GitHub",
-		Description: "Created by the GitHub plugin.",
+		OwnerId:     Manifest.Id, // Workaround to support older server version affected by https://forgejo.com/mattermost/mattermost-server/pull/21560
+		Username:    "forgejo",
+		DisplayName: "Forgejo",
+		Description: "Created by the Forgejo plugin.",
 	}, pluginapi.ProfileImagePath(filepath.Join("assets", "profile.png")))
 	if err != nil {
-		return errors.Wrap(err, "failed to ensure github bot")
+		return errors.Wrap(err, "failed to ensure forgejo bot")
 	}
 	p.BotUserID = botID
 
@@ -294,14 +296,7 @@ func (p *Plugin) OnActivate() error {
 	}
 	p.flowManager = flowManager
 
-	registerGitHubToUsernameMappingCallback(p.getGitHubToUsernameMapping)
-
-	go func() {
-		resetErr := p.forceResetAllMM34646()
-		if resetErr != nil {
-			p.client.Log.Debug("failed to reset user tokens", "error", resetErr.Error())
-		}
-	}()
+	registerForgejoToUsernameMappingCallback(p.getGitHubToUsernameMapping)
 	return nil
 }
 
@@ -325,8 +320,8 @@ func (p *Plugin) getPostPropsForReaction(reaction *model.Reaction) (org, repo st
 		return org, repo, id, objectType, false
 	}
 
-	// Getting the Github repository from notification post props
-	repo, ok = post.GetProp(postPropGithubRepo).(string)
+	// Getting the Forgejo repository from notification post props
+	repo, ok = post.GetProp(postPropForgejoRepo).(string)
 	if !ok || repo == "" {
 		return org, repo, id, objectType, false
 	}
@@ -339,14 +334,14 @@ func (p *Plugin) getPostPropsForReaction(reaction *model.Reaction) (org, repo st
 
 	org, repo = orgRepo[0], orgRepo[1]
 
-	// Getting the Github object id from notification post props
-	id, ok = post.GetProp(postPropGithubObjectID).(float64)
+	// Getting Forgejo object id from notification post props
+	id, ok = post.GetProp(postPropForgejoObjectID).(float64)
 	if !ok || id == 0 {
 		return org, repo, id, objectType, false
 	}
 
-	// Getting the Github object type from notification post props
-	objectType, ok = post.GetProp(postPropGithubObjectType).(string)
+	// Getting the Forgejo object type from notification post props
+	objectType, ok = post.GetProp(postPropForgejoObjectType).(string)
 	if !ok || objectType == "" {
 		return org, repo, id, objectType, false
 	}
@@ -365,7 +360,7 @@ func (p *Plugin) ReactionHasBeenAdded(c *plugin.Context, reaction *model.Reactio
 		return
 	}
 
-	info, appErr := p.getGitHubUserInfo(reaction.UserId)
+	info, appErr := p.getForgejoUserInfo(reaction.UserId)
 	if appErr != nil {
 		if appErr.ID != apiErrorIDNotConnected {
 			p.client.Log.Debug("Error in getting user info", "error", appErr.Error())
@@ -377,17 +372,17 @@ func (p *Plugin) ReactionHasBeenAdded(c *plugin.Context, reaction *model.Reactio
 	defer cancel()
 	ghClient := p.githubConnectUser(ctx, info)
 	switch objectType {
-	case githubObjectTypeIssueComment:
+	case forgejoObjectTypeIssueComment:
 		if _, _, err := ghClient.Reactions.CreateIssueCommentReaction(context.Background(), owner, repo, int64(id), githubEmoji); err != nil {
 			p.client.Log.Debug("Error occurred while creating issue comment reaction", "error", err.Error())
 			return
 		}
-	case githubObjectTypeIssue:
+	case forgejoObjectTypeIssue:
 		if _, _, err := ghClient.Reactions.CreateIssueReaction(context.Background(), owner, repo, int(id), githubEmoji); err != nil {
 			p.client.Log.Debug("Error occurred while creating issue reaction", "error", err.Error())
 			return
 		}
-	case githubObjectTypePRReviewComment:
+	case forgejoObjectTypePRReviewComment:
 		if _, _, err := ghClient.Reactions.CreatePullRequestCommentReaction(context.Background(), owner, repo, int64(id), githubEmoji); err != nil {
 			p.client.Log.Debug("Error occurred while creating PR review comment reaction", "error", err.Error())
 			return
@@ -408,7 +403,7 @@ func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.React
 		return
 	}
 
-	info, appErr := p.getGitHubUserInfo(reaction.UserId)
+	info, appErr := p.getForgejoUserInfo(reaction.UserId)
 	if appErr != nil {
 		if appErr.ID != apiErrorIDNotConnected {
 			p.client.Log.Debug("Error in getting user info", "error", appErr.Error())
@@ -420,7 +415,7 @@ func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.React
 	defer cancel()
 	ghClient := p.githubConnectUser(ctx, info)
 	switch objectType {
-	case githubObjectTypeIssueComment:
+	case forgejoObjectTypeIssueComment:
 		reactions, _, err := ghClient.Reactions.ListIssueCommentReactions(context.Background(), owner, repo, int64(id), &github.ListOptions{})
 		if err != nil {
 			p.client.Log.Debug("Error getting issue comment reaction list", "error", err.Error())
@@ -435,7 +430,7 @@ func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.React
 				return
 			}
 		}
-	case githubObjectTypeIssue:
+	case forgejoObjectTypeIssue:
 		reactions, _, err := ghClient.Reactions.ListIssueReactions(context.Background(), owner, repo, int(id), &github.ListOptions{})
 		if err != nil {
 			p.client.Log.Debug("Error getting issue reaction list", "error", err.Error())
@@ -450,7 +445,7 @@ func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.React
 				return
 			}
 		}
-	case githubObjectTypePRReviewComment:
+	case forgejoObjectTypePRReviewComment:
 		reactions, _, err := ghClient.Reactions.ListPullRequestCommentReactions(context.Background(), owner, repo, int64(id), &github.ListOptions{})
 		if err != nil {
 			p.client.Log.Debug("Error getting PR review comment reaction list", "error", err.Error())
@@ -476,9 +471,8 @@ func (p *Plugin) OnInstall(c *plugin.Context, event model.OnInstallEvent) error 
 	// Don't start wizard if OAuth is configured
 	if conf.IsOAuthConfigured() {
 		p.client.Log.Debug("OAuth is configured, skipping setup wizard",
-			"GitHubOAuthClientID", lastN(conf.GitHubOAuthClientID, 4),
-			"GitHubOAuthClientSecret", lastN(conf.GitHubOAuthClientSecret, 4),
-			"UsePreregisteredApplication", conf.UsePreregisteredApplication)
+			"ForgejoOAuthClientID", lastN(conf.ForgejoOAuthClientID, 4),
+			"ForgejoOAuthClientSecret", lastN(conf.ForgejoOAuthClientSecret, 4))
 		return nil
 	}
 
@@ -491,14 +485,6 @@ func (p *Plugin) OnSendDailyTelemetry() {
 
 func (p *Plugin) OnPluginClusterEvent(c *plugin.Context, ev model.PluginClusterEvent) {
 	p.HandleClusterEvent(ev)
-}
-
-// registerChimeraURL fetches the Chimera URL from server settings or env var and sets it in the plugin object.
-func (p *Plugin) registerChimeraURL() {
-	chimeraURLSetting := p.client.Configuration.GetConfig().PluginSettings.ChimeraOAuthProxyURL
-	if chimeraURLSetting != nil {
-		p.chimeraURL = *chimeraURLSetting
-	}
 }
 
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
@@ -523,7 +509,7 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	}
 
 	msg := post.Message
-	info, appErr := p.getGitHubUserInfo(post.UserId)
+	info, appErr := p.getForgejoUserInfo(post.UserId)
 	if appErr != nil {
 		if appErr.ID != apiErrorIDNotConnected {
 			p.client.Log.Warn("Error in getting user info", "error", appErr.Message)
@@ -538,21 +524,17 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	return post, ""
 }
 
-func (p *Plugin) getOAuthConfig(privateAllowed bool) (*oauth2.Config, error) {
-	config := p.getConfiguration()
-
-	repo := github.ScopePublicRepo
-	if config.EnablePrivateRepo && privateAllowed {
-		// means that asks scope for private repositories
-		repo = github.ScopeRepo
+func (p *Plugin) getOAuthConfig() (*oauth2.Config, error) {
+	oauthConfig, err := getOauthConfig(p.getConfiguration())
+	redirectURL, err := buildPluginURL(p.client, "oauth", "complete")
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create PluginURL")
 	}
-	scopes := []string{string(repo), string(github.ScopeNotifications), string(github.ScopeReadOrg), string(github.ScopeAdminOrgHook)}
+	oauthConfig.RedirectURL = redirectURL
+	return oauthConfig, err
+}
 
-	if config.UsePreregisteredApplication {
-		p.client.Log.Debug("Using Chimera Proxy OAuth configuration")
-		return p.getOAuthConfigForChimeraApp(scopes)
-	}
-
+func getOauthConfig(config *Configuration) (*oauth2.Config, error) {
 	baseURL := config.getBaseURL()
 	if testOAuthServerURL != "" {
 		baseURL = testOAuthServerURL + "/"
@@ -568,9 +550,8 @@ func (p *Plugin) getOAuthConfig(privateAllowed bool) (*oauth2.Config, error) {
 	}
 
 	return &oauth2.Config{
-		ClientID:     config.GitHubOAuthClientID,
-		ClientSecret: config.GitHubOAuthClientSecret,
-		Scopes:       scopes,
+		ClientID:     config.ForgejoOAuthClientID,
+		ClientSecret: config.ForgejoOAuthClientSecret,
 		Endpoint: oauth2.Endpoint{
 			AuthURL:   authURL,
 			TokenURL:  tokenURL,
@@ -579,55 +560,25 @@ func (p *Plugin) getOAuthConfig(privateAllowed bool) (*oauth2.Config, error) {
 	}, nil
 }
 
-func (p *Plugin) getOAuthConfigForChimeraApp(scopes []string) (*oauth2.Config, error) {
-	baseURL := fmt.Sprintf("%s/v1/github/%s", p.chimeraURL, chimeraGitHubAppIdentifier)
-
-	authURL, err := url.JoinPath(baseURL, "oauth", "authorize")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to build AuthURL")
-	}
-	tokenURL, err := url.JoinPath(baseURL, "oauth", "token")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to build TokenURL")
-	}
-	redirectURL, err := buildPluginURL(p.client, "oauth", "token")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to build RedirectURL")
-	}
-
-	return &oauth2.Config{
-		ClientID:     "placeholder",
-		ClientSecret: "placeholder",
-		Scopes:       scopes,
-		RedirectURL:  redirectURL,
-		Endpoint: oauth2.Endpoint{
-			AuthURL:   authURL,
-			TokenURL:  tokenURL,
-			AuthStyle: oauth2.AuthStyleInHeader,
-		},
-	}, nil
-}
-
-type GitHubUserInfo struct {
+type ForgejoUserInfo struct {
 	UserID              string
 	Token               *oauth2.Token
-	GitHubUsername      string
+	ForgejoUsername     string
 	LastToDoPostAt      int64
 	Settings            *UserSettings
 	AllowedPrivateRepos bool
-
-	// MM34646ResetTokenDone is set for a user whose token has been reset for MM-34646.
-	MM34646ResetTokenDone bool
 }
 
 type UserSettings struct {
-	SidebarButtons        string `json:"sidebar_buttons"`
-	DailyReminder         bool   `json:"daily_reminder"`
-	DailyReminderOnChange bool   `json:"daily_reminder_on_change"`
-	Notifications         bool   `json:"notifications"`
+	SidebarButtons                 string   `json:"sidebar_buttons"`
+	DailyReminder                  bool     `json:"daily_reminder"`
+	DailyReminderOnChange          bool     `json:"daily_reminder_on_change"`
+	Notifications                  bool     `json:"notifications"`
+	DisableTeamNotifications       bool     `json:"disable_team_review_notifications"`
+	ExcludeTeamReviewNotifications []string `json:"exclude_team_review_notifications"`
 }
 
-func (p *Plugin) storeGitHubUserInfo(info *GitHubUserInfo) error {
+func (p *Plugin) storeForgejoUserInfo(info *ForgejoUserInfo) error {
 	config := p.getConfiguration()
 
 	encryptedToken, err := encrypt([]byte(config.EncryptionKey), info.Token.AccessToken)
@@ -637,23 +588,23 @@ func (p *Plugin) storeGitHubUserInfo(info *GitHubUserInfo) error {
 
 	info.Token.AccessToken = encryptedToken
 
-	if _, err := p.store.Set(info.UserID+githubTokenKey, info); err != nil {
+	if _, err := p.store.Set(info.UserID+forgejoTokenKey, info); err != nil {
 		return errors.Wrap(err, "error occurred while trying to store user info into KV store")
 	}
 
 	return nil
 }
 
-func (p *Plugin) getGitHubUserInfo(userID string) (*GitHubUserInfo, *APIErrorResponse) {
+func (p *Plugin) getForgejoUserInfo(userID string) (*ForgejoUserInfo, *APIErrorResponse) {
 	config := p.getConfiguration()
 
-	var userInfo *GitHubUserInfo
-	err := p.store.Get(userID+githubTokenKey, &userInfo)
+	var userInfo *ForgejoUserInfo
+	err := p.store.Get(userID+forgejoTokenKey, &userInfo)
 	if err != nil {
 		return nil, &APIErrorResponse{ID: "", Message: "Unable to get user info.", StatusCode: http.StatusInternalServerError}
 	}
 	if userInfo == nil {
-		return nil, &APIErrorResponse{ID: apiErrorIDNotConnected, Message: "Must connect user account to GitHub first.", StatusCode: http.StatusBadRequest}
+		return nil, &APIErrorResponse{ID: apiErrorIDNotConnected, Message: "Must connect user account to Forgejo first.", StatusCode: http.StatusBadRequest}
 	}
 
 	unencryptedToken, err := decrypt([]byte(config.EncryptionKey), userInfo.Token.AccessToken)
@@ -668,9 +619,9 @@ func (p *Plugin) getGitHubUserInfo(userID string) (*GitHubUserInfo, *APIErrorRes
 }
 
 func (p *Plugin) storeGitHubToUserIDMapping(githubUsername, userID string) error {
-	_, err := p.store.Set(githubUsername+githubUsernameKey, []byte(userID))
+	_, err := p.store.Set(githubUsername+forgejoUsernameKey, []byte(userID))
 	if err != nil {
-		return errors.Wrap(err, "encountered error saving github username mapping")
+		return errors.Wrap(err, "encountered error saving forgejo username mapping")
 	}
 
 	return nil
@@ -678,16 +629,16 @@ func (p *Plugin) storeGitHubToUserIDMapping(githubUsername, userID string) error
 
 func (p *Plugin) getGitHubToUserIDMapping(githubUsername string) string {
 	var data []byte
-	err := p.store.Get(githubUsername+githubUsernameKey, &data)
+	err := p.store.Get(githubUsername+forgejoUsernameKey, &data)
 	if err != nil {
-		p.client.Log.Warn("Error occurred while getting the user ID from KV store using the Github username", "error", err.Error())
+		p.client.Log.Warn("Error occurred while getting the user ID from KV store using the Forgejo username", "error", err.Error())
 		return ""
 	}
 
 	return string(data)
 }
 
-// getGitHubToUsernameMapping maps a GitHub username to the corresponding Mattermost username, if any.
+// getGitHubToUsernameMapping maps a Forgejo username to the corresponding Mattermost username, if any.
 func (p *Plugin) getGitHubToUsernameMapping(githubUsername string) string {
 	user, _ := p.client.User.Get(p.getGitHubToUserIDMapping(githubUsername))
 	if user == nil {
@@ -697,18 +648,18 @@ func (p *Plugin) getGitHubToUsernameMapping(githubUsername string) string {
 	return user.Username
 }
 
-func (p *Plugin) disconnectGitHubAccount(userID string) {
-	userInfo, _ := p.getGitHubUserInfo(userID)
+func (p *Plugin) disconnectForgejoAccount(userID string) {
+	userInfo, _ := p.getForgejoUserInfo(userID)
 	if userInfo == nil {
 		return
 	}
 
-	if err := p.store.Delete(userID + githubTokenKey); err != nil {
-		p.client.Log.Warn("Failed to delete github token from KV store", "userID", userID, "error", err.Error())
+	if err := p.store.Delete(userID + forgejoTokenKey); err != nil {
+		p.client.Log.Warn("Failed to delete forgejo token from KV store", "userID", userID, "error", err.Error())
 	}
 
-	if err := p.store.Delete(userInfo.GitHubUsername + githubUsernameKey); err != nil {
-		p.client.Log.Warn("Failed to delete github token from KV store", "userID", userID, "error", err.Error())
+	if err := p.store.Delete(userInfo.ForgejoUsername + forgejoUsernameKey); err != nil {
+		p.client.Log.Warn("Failed to delete forgejo token from KV store", "userID", userID, "error", err.Error())
 	}
 
 	user, err := p.client.User.Get(userID)
@@ -796,9 +747,8 @@ func (p *Plugin) GetDailySummaryText(userID string) (string, error) {
 	return string(summaryByte), nil
 }
 
-func (p *Plugin) PostToDo(info *GitHubUserInfo, userID string) error {
-	ctx := context.Background()
-	text, err := p.GetToDo(ctx, info, p.githubConnectUser(ctx, info))
+func (p *Plugin) PostToDo(info *ForgejoUserInfo, userID string) error {
+	text, err := p.GetToDo(info)
 	if err != nil {
 		return err
 	}
@@ -820,96 +770,57 @@ func (p *Plugin) PostToDo(info *GitHubUserInfo, userID string) error {
 	return nil
 }
 
-func (p *Plugin) GetToDo(ctx context.Context, info *GitHubUserInfo, githubClient *github.Client) (string, error) {
+func (p *Plugin) GetToDo(info *ForgejoUserInfo) (string, error) {
 	config := p.getConfiguration()
+	orgList := config.getOrganizations()
 	baseURL := config.getBaseURL()
-	orgList := p.configuration.getOrganizations()
 
-	var issueResults *github.IssuesSearchResult
-	var err error
-	cErr := p.useGitHubClient(info, func(info *GitHubUserInfo, token *oauth2.Token) error {
-		issueResults, _, err = githubClient.Search.Issues(ctx, getReviewSearchQuery(info.GitHubUsername, orgList), &github.SearchOptions{})
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if cErr != nil {
-		return "", errors.Wrap(cErr, "error occurred while searching for reviews")
-	}
+	forgejoClient := p.forgejoConnect(info)
 
-	var notifications []*github.Notification
-	cErr = p.useGitHubClient(info, func(info *GitHubUserInfo, token *oauth2.Token) error {
-		notifications, _, err = githubClient.Activity.ListNotifications(ctx, &github.NotificationListOptions{})
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if cErr != nil {
-		return "", errors.Wrap(cErr, "error occurred while listing notifications")
-	}
+	var resultReview, resultAssignee, resultOpenPR []*github.Issue
+	for _, org := range orgList {
+		resultReviewData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "review_requested"))
+		resultOpenPRData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "created"))
+		resultAssigneeData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "assigned"))
 
-	var yourPrs *github.IssuesSearchResult
-	cErr = p.useGitHubClient(info, func(info *GitHubUserInfo, token *oauth2.Token) error {
-		yourPrs, _, err = githubClient.Search.Issues(ctx, getYourPrsSearchQuery(info.GitHubUsername, orgList), &github.SearchOptions{})
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if cErr != nil {
-		return "", errors.Wrap(cErr, "error occurred while searching for PRs")
+		resultReview = fillGhIssue(resultReviewData, baseURL, resultReview)
+		resultOpenPR = fillGhIssue(resultOpenPRData, baseURL, resultOpenPR)
+		resultAssignee = fillGhIssue(resultAssigneeData, baseURL, resultAssignee)
 	}
-
-	var yourAssignments *github.IssuesSearchResult
-	cErr = p.useGitHubClient(info, func(info *GitHubUserInfo, token *oauth2.Token) error {
-		yourAssignments, _, err = githubClient.Search.Issues(ctx, getYourAssigneeSearchQuery(info.GitHubUsername, orgList), &github.SearchOptions{})
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if cErr != nil {
-		return "", errors.Wrap(cErr, "error occurred while searching for assignments")
-	}
+	notifications := makeForgejoRequest[[]FNotification](p, forgejoClient, fmt.Sprintf("%sapi/v1/notifications", baseURL))
 
 	text := "##### Unread Messages\n"
 
 	notificationCount := 0
 	notificationContent := ""
 	for _, n := range notifications {
-		if n.GetReason() == notificationReasonSubscribed {
-			continue
-		}
-
-		if n.GetRepository() == nil {
+		if n.Repository == nil {
 			p.client.Log.Warn("Unable to get repository for notification in todo list. Skipping.")
 			continue
 		}
 
-		if p.checkOrg(n.GetRepository().GetOwner().GetLogin()) != nil {
+		if p.checkOrg(*n.Repository.Owner.Login) != nil {
 			continue
 		}
 
-		notificationSubject := n.GetSubject()
-		notificationType := notificationSubject.GetType()
+		notificationSubject := *n.Subject
+		notificationType := *notificationSubject.Type
 		switch notificationType {
 		case "RepositoryVulnerabilityAlert":
-			message := fmt.Sprintf("[Vulnerability Alert for %v](%v)", n.GetRepository().GetFullName(), fixGithubNotificationSubjectURL(n.GetSubject().GetURL(), ""))
+			message := fmt.Sprintf("[Vulnerability Alert for %v](%v)", *n.Repository.FullName, fixGithubNotificationSubjectURL(*n.Subject.URL, ""))
 			notificationContent += fmt.Sprintf("* %v\n", message)
 		default:
-			issueURL := n.GetSubject().GetURL()
+			issueURL := *n.Subject.URL
 			issueNumIndex := strings.LastIndex(issueURL, "/")
 			issueNum := issueURL[issueNumIndex+1:]
-			subjectURL := n.GetSubject().GetURL()
-			if n.GetSubject().GetLatestCommentURL() != "" {
-				subjectURL = n.GetSubject().GetLatestCommentURL()
+			subjectURL := *n.Subject.URL
+			if *n.Subject.LatestCommentURL != "" {
+				subjectURL = *n.Subject.LatestCommentURL
 			}
 
-			notificationTitle := notificationSubject.GetTitle()
+			notificationTitle := *notificationSubject.Title
 			notificationURL := fixGithubNotificationSubjectURL(subjectURL, issueNum)
-			notificationContent += getToDoDisplayText(baseURL, notificationTitle, notificationURL, notificationType, n.GetRepository())
+			notificationContent += getToDoDisplayText(baseURL, notificationTitle, notificationURL, notificationType, n.Repository)
 		}
 
 		notificationCount++
@@ -924,36 +835,36 @@ func (p *Plugin) GetToDo(ctx context.Context, info *GitHubUserInfo, githubClient
 
 	text += "##### Review Requests\n"
 
-	if issueResults.GetTotal() == 0 {
+	if len(resultReview) == 0 {
 		text += "You don't have any pull requests awaiting your review.\n"
 	} else {
-		text += fmt.Sprintf("You have %v pull requests awaiting your review:\n", issueResults.GetTotal())
+		text += fmt.Sprintf("You have %v pull requests awaiting your review:\n", len(resultReview))
 
-		for _, pr := range issueResults.Issues {
+		for _, pr := range resultReview {
 			text += getToDoDisplayText(baseURL, pr.GetTitle(), pr.GetHTMLURL(), "", nil)
 		}
 	}
 
 	text += "##### Your Open Pull Requests\n"
 
-	if yourPrs.GetTotal() == 0 {
+	if len(resultOpenPR) == 0 {
 		text += "You don't have any open pull requests.\n"
 	} else {
-		text += fmt.Sprintf("You have %v open pull requests:\n", yourPrs.GetTotal())
+		text += fmt.Sprintf("You have %v open pull requests:\n", len(resultOpenPR))
 
-		for _, pr := range yourPrs.Issues {
+		for _, pr := range resultOpenPR {
 			text += getToDoDisplayText(baseURL, pr.GetTitle(), pr.GetHTMLURL(), "", nil)
 		}
 	}
 
 	text += "##### Your Assignments\n"
 
-	if yourAssignments.GetTotal() == 0 {
+	if len(resultAssignee) == 0 {
 		text += "You don't have any assignments.\n"
 	} else {
-		text += fmt.Sprintf("You have %v assignments:\n", yourAssignments.GetTotal())
+		text += fmt.Sprintf("You have %v assignments:\n", len(resultAssignee))
 
-		for _, assign := range yourAssignments.Issues {
+		for _, assign := range resultAssignee {
 			text += getToDoDisplayText(baseURL, assign.GetTitle(), assign.GetHTMLURL(), "", nil)
 		}
 	}
@@ -961,80 +872,56 @@ func (p *Plugin) GetToDo(ctx context.Context, info *GitHubUserInfo, githubClient
 	return text, nil
 }
 
-func (p *Plugin) HasUnreads(info *GitHubUserInfo) bool {
-	username := info.GitHubUsername
-	ctx := context.Background()
-	githubClient := p.githubConnectUser(ctx, info)
-	orgList := p.configuration.getOrganizations()
-
-	var issues *github.IssuesSearchResult
-	var err error
-	cErr := p.useGitHubClient(info, func(info *GitHubUserInfo, token *oauth2.Token) error {
-		query := getReviewSearchQuery(username, orgList)
-		issues, _, err = githubClient.Search.Issues(ctx, query, &github.SearchOptions{})
-		if err != nil {
-			p.client.Log.Warn("Failed to search for review", "query", query, "error", err.Error())
-			return err
-		}
-		return nil
-	})
-	if cErr != nil {
-		return false
+func makeForgejoRequest[T any](p *Plugin, forgejoClient *http.Client, requestURL string) T {
+	response, err := forgejoClient.Get(requestURL)
+	if err != nil {
+		p.client.Log.Error("Failed Forgejo request", "url", requestURL, "error", err.Error())
+		var empty T
+		return empty
+	}
+	if response == nil || response.Body == nil {
+		p.client.Log.Error("Failed Forgejo request", "url", requestURL, "error", "nil response")
+		var empty T
+		return empty
 	}
 
-	var yourPrs *github.IssuesSearchResult
-	cErr = p.useGitHubClient(info, func(info *GitHubUserInfo, token *oauth2.Token) error {
-		query := getYourPrsSearchQuery(username, orgList)
-		yourPrs, _, err = githubClient.Search.Issues(ctx, query, &github.SearchOptions{})
-		if err != nil {
-			p.client.Log.Warn("Failed to search for PRs", "query", query, "error", "error", err.Error())
-			return err
-		}
-		return nil
-	})
-	if cErr != nil {
-		return false
+	var result T
+	if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
+		p.client.Log.Error("Error decoding Plugin JSON body", err.Error())
+		var empty T
+		return empty
 	}
+	return result
+}
 
-	var yourAssignments *github.IssuesSearchResult
-	cErr = p.useGitHubClient(info, func(info *GitHubUserInfo, token *oauth2.Token) error {
-		query := getYourAssigneeSearchQuery(username, orgList)
-		yourAssignments, _, err = githubClient.Search.Issues(ctx, query, &github.SearchOptions{})
-		if err != nil {
-			p.client.Log.Warn("Failed to search for assignments", "query", query, "error", "error", err.Error())
-			return err
-		}
-		return nil
-	})
-	if cErr != nil {
-		return false
+func (p *Plugin) HasUnreads(info *ForgejoUserInfo) bool {
+	config := p.getConfiguration()
+	orgList := config.getOrganizations()
+	baseURL := config.getBaseURL()
+
+	forgejoClient := p.forgejoConnect(info)
+
+	var resultReview, resultAssignee, resultOpenPR []*github.Issue
+	for _, org := range orgList {
+		resultReviewData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "review_requested"))
+		resultOpenPRData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "created"))
+		resultAssigneeData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "assigned"))
+
+		resultReview = fillGhIssue(resultReviewData, baseURL, resultReview)
+		resultOpenPR = fillGhIssue(resultOpenPRData, baseURL, resultOpenPR)
+		resultAssignee = fillGhIssue(resultAssigneeData, baseURL, resultAssignee)
 	}
 
 	relevantNotifications := false
-	var notifications []*github.Notification
-	cErr = p.useGitHubClient(info, func(info *GitHubUserInfo, token *oauth2.Token) error {
-		notifications, _, err = githubClient.Activity.ListNotifications(ctx, &github.NotificationListOptions{})
-		if err != nil {
-			p.client.Log.Warn("Failed to list notifications", "error", err.Error())
-			return err
-		}
-		return nil
-	})
-	if cErr != nil {
-		return false
-	}
+	notifications := makeForgejoRequest[[]FNotification](p, forgejoClient, fmt.Sprintf("%sapi/v1/notifications", baseURL))
 
 	for _, n := range notifications {
-		if n.GetReason() == notificationReasonSubscribed {
-			continue
-		}
-
-		if n.GetRepository() == nil {
+		if n.Repository == nil {
 			p.client.Log.Warn("Unable to get repository for notification in todo list. Skipping.")
 			continue
 		}
 
-		if p.checkOrg(n.GetRepository().GetOwner().GetLogin()) != nil {
+		if p.checkOrg(*n.Repository.Owner.Login) != nil {
 			continue
 		}
 
@@ -1042,7 +929,7 @@ func (p *Plugin) HasUnreads(info *GitHubUserInfo) bool {
 		break
 	}
 
-	if issues.GetTotal() == 0 && !relevantNotifications && yourPrs.GetTotal() == 0 && yourAssignments.GetTotal() == 0 {
+	if len(resultReview) == 0 && !relevantNotifications && len(resultOpenPR) == 0 && len(resultAssignee) == 0 {
 		return false
 	}
 
@@ -1063,25 +950,25 @@ func (p *Plugin) checkOrg(org string) error {
 		}
 	}
 
-	return errors.Errorf("only repositories in the %v organization(s) are supported", config.GitHubOrg)
+	return errors.Errorf("only repositories in the %v organization(s) are supported", config.ForgejoOrg)
 }
 
-func (p *Plugin) isUserOrganizationMember(githubClient *github.Client, user *github.User, info *GitHubUserInfo, organization string) bool {
+func (p *Plugin) isUserOrganizationMember(githubClient *github.Client, username string, info *ForgejoUserInfo, organization string) bool {
 	if organization == "" {
 		return false
 	}
 
 	var isMember bool
 	var err error
-	cErr := p.useGitHubClient(info, func(info *GitHubUserInfo, token *oauth2.Token) error {
-		isMember, _, err = githubClient.Organizations.IsMember(context.Background(), organization, *user.Login)
+	cErr := p.useGitHubClient(info, func(info *ForgejoUserInfo, token *oauth2.Token) error {
+		isMember, _, err = githubClient.Organizations.IsMember(context.Background(), organization, username)
 		if err != nil {
 			return err
 		}
 		return nil
 	})
 	if cErr != nil {
-		p.client.Log.Warn("Failed to check if user is an org member", "GitHub username", *user.Login, "error", cErr.Error())
+		p.client.Log.Warn("Failed to check if user is an org member", "Forgejo username", username, "error", cErr.Error())
 		return false
 	}
 
@@ -1090,7 +977,7 @@ func (p *Plugin) isUserOrganizationMember(githubClient *github.Client, user *git
 
 func (p *Plugin) isOrganizationLocked() bool {
 	config := p.getConfiguration()
-	configOrg := strings.TrimSpace(config.GitHubOrg)
+	configOrg := strings.TrimSpace(config.ForgejoOrg)
 
 	return configOrg != ""
 }
@@ -1110,7 +997,7 @@ func (p *Plugin) sendRefreshEvent(userID string) {
 
 	defer cancel()
 
-	info, apiErr := p.getGitHubUserInfo(context.UserID)
+	info, apiErr := p.getForgejoUserInfo(context.UserID)
 	if apiErr != nil {
 		p.client.Log.Warn("Failed to get github user info", "error", apiErr.Error())
 		return
@@ -1154,11 +1041,11 @@ func (s *SidebarContent) toMap() (map[string]interface{}, error) {
 	return m, nil
 }
 
-// getUsername returns the GitHub username for a given Mattermost user,
-// if the user is connected to GitHub via this plugin.
+// getUsername returns the Forgejo username for a given Mattermost user,
+// if the user is connected to Forgejo via this plugin.
 // Otherwise it return the Mattermost username. It will be escaped via backticks.
 func (p *Plugin) getUsername(mmUserID string) (string, error) {
-	info, apiEr := p.getGitHubUserInfo(mmUserID)
+	info, apiEr := p.getForgejoUserInfo(mmUserID)
 	if apiEr != nil {
 		if apiEr.ID != apiErrorIDNotConnected {
 			return "", apiEr
@@ -1172,13 +1059,13 @@ func (p *Plugin) getUsername(mmUserID string) (string, error) {
 		return fmt.Sprintf("`@%s`", user.Username), nil
 	}
 
-	return "@" + info.GitHubUsername, nil
+	return "@" + info.ForgejoUsername, nil
 }
 
-func (p *Plugin) useGitHubClient(info *GitHubUserInfo, toRun func(info *GitHubUserInfo, token *oauth2.Token) error) error {
+func (p *Plugin) useGitHubClient(info *ForgejoUserInfo, toRun func(info *ForgejoUserInfo, token *oauth2.Token) error) error {
 	err := toRun(info, info.Token)
 	if err != nil {
-		p.client.Log.Warn("Error occurred while using the Github client", "error", err.Error())
+		p.client.Log.Warn("Error occurred while using the Forgejo client", "error", err.Error())
 	}
 
 	if err != nil && strings.Contains(err.Error(), invalidTokenError) {
@@ -1188,7 +1075,7 @@ func (p *Plugin) useGitHubClient(info *GitHubUserInfo, toRun func(info *GitHubUs
 	return err
 }
 
-func (p *Plugin) handleRevokedToken(info *GitHubUserInfo) {
-	p.disconnectGitHubAccount(info.UserID)
-	p.CreateBotDMPost(info.UserID, "Your Github account was disconnected due to an invalid or revoked authorization token. Reconnect your account using the `/github connect` command.", "custom_git_revoked_token")
+func (p *Plugin) handleRevokedToken(info *ForgejoUserInfo) {
+	p.disconnectForgejoAccount(info.UserID)
+	p.CreateBotDMPost(info.UserID, "Your Forgejo account was disconnected due to an invalid or revoked authorization token. Reconnect your account using the `/forgejo connect` command.", "custom_git_revoked_token")
 }

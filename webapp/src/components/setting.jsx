@@ -24,28 +24,43 @@ export default class Setting extends React.PureComponent {
             hideRequiredStar,
         } = this.props;
 
+        const showLabelRow = label || (required && !hideRequiredStar);
+
         return (
             <div
                 className='form-group less'
                 style={{marginBottom: '8px'}}
             >
-                {label && (
-                    <label
-                        className='control-label margin-bottom x2'
-                        htmlFor={inputId}
+                {showLabelRow && (
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '3px',
+                            marginBottom: '4px',
+                            position: 'relative',
+                        }}
                     >
-                        {label}
-                    </label>)
-                }
-                {required && !hideRequiredStar && (
-                    <span
-                        className='error-text'
-                        style={{marginLeft: '3px'}}
-                    >
-                        {'*'}
-                    </span>
-                )
-                }
+                        {label && (
+                            <label
+                                className='control-label'
+                                htmlFor={inputId}
+                                style={{marginBottom: 0}}
+                            >
+                                {label}
+                            </label>)
+                        }
+                        {required && !hideRequiredStar && (
+                            <span
+                                className='error-text'
+                                style={{position: 'relative', top: '1px'}}
+                            >
+                                {'*'}
+                            </span>
+                        )
+                        }
+                    </div>
+                )}
                 <div>
                     {children}
                     <div

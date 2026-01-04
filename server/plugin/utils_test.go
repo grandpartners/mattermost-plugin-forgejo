@@ -47,12 +47,12 @@ func TestFixGithubNotificationSubjectURL(t *testing.T) {
 		Expected string
 		IssueNum string
 	}{
-		{Text: "https://api.github.com/repos/jwilander/mattermost-webapp/issues/123", Expected: "https://github.com/jwilander/mattermost-webapp/issues/123"},
-		{Text: "https://api.github.com/repos/jwilander/mattermost-webapp/pulls/123", Expected: "https://github.com/jwilander/mattermost-webapp/pull/123"},
-		{Text: "https://enterprise.github.com/api/v3/jwilander/mattermost-webapp/issues/123", Expected: "https://enterprise.github.com/jwilander/mattermost-webapp/issues/123"},
-		{Text: "https://enterprise.github.com/api/v3/jwilander/mattermost-webapp/pull/123", Expected: "https://enterprise.github.com/jwilander/mattermost-webapp/pull/123"},
-		{Text: "https://api.github.com/repos/mattermost/mattermost-server/commits/cc6c385d3e8903546fc6fc856bf468ad09b70913", Expected: "https://github.com/mattermost/mattermost-server/commit/cc6c385d3e8903546fc6fc856bf468ad09b70913"},
-		{Text: "https://api.github.com/repos/user/rate_my_cakes/issues/comments/655139214", Expected: "https://github.com/user/rate_my_cakes/issues/4#issuecomment-655139214", IssueNum: "4"},
+		{Text: "https://code.syn.st/api/v1/repos/jwilander/mattermost-webapp/issues/123", Expected: "https://forgejo.com/jwilander/mattermost-webapp/issues/123"},
+		{Text: "https://code.syn.st/api/v1/repos/jwilander/mattermost-webapp/pulls/123", Expected: "https://forgejo.com/jwilander/mattermost-webapp/pull/123"},
+		{Text: "https://enterprise.code.syn.st/api/v1/jwilander/mattermost-webapp/issues/123", Expected: "https://enterprise.code.syn.st/jwilander/mattermost-webapp/issues/123"},
+		{Text: "https://enterprise.code.syn.st/api/v1/jwilander/mattermost-webapp/pull/123", Expected: "https://enterprise.code.syn.st/jwilander/mattermost-webapp/pull/123"},
+		{Text: "https://code.syn.st/api/v1/repos/mattermost/mattermost-server/commits/cc6c385d3e8903546fc6fc856bf468ad09b70913", Expected: "https://forgejo.com/mattermost/mattermost-server/commit/cc6c385d3e8903546fc6fc856bf468ad09b70913"},
+		{Text: "https://code.syn.st/api/v1/repos/user/rate_my_cakes/issues/comments/655139214", Expected: "https://forgejo.com/user/rate_my_cakes/issues/4#issuecomment-655139214", IssueNum: "4"},
 	}
 
 	for _, tc := range tcs {
@@ -68,16 +68,16 @@ func TestParseOwnerAndRepo(t *testing.T) {
 		ExpectedRepo  string
 	}{
 		{Full: "mattermost", BaseURL: "", ExpectedOwner: "mattermost", ExpectedRepo: ""},
-		{Full: "mattermost", BaseURL: "https://github.com/", ExpectedOwner: "mattermost", ExpectedRepo: ""},
+		{Full: "mattermost", BaseURL: "https://forgejo.com/", ExpectedOwner: "mattermost", ExpectedRepo: ""},
 		{Full: "https://example.org/mattermost", BaseURL: "https://example.org/", ExpectedOwner: "mattermost", ExpectedRepo: ""},
-		{Full: "https://github.com/mattermost", BaseURL: "https://github.com/", ExpectedOwner: "mattermost", ExpectedRepo: ""},
+		{Full: "https://forgejo.com/mattermost", BaseURL: "https://forgejo.com/", ExpectedOwner: "mattermost", ExpectedRepo: ""},
 		{Full: "mattermost/mattermost-server", BaseURL: "", ExpectedOwner: "mattermost", ExpectedRepo: "mattermost-server"},
-		{Full: "mattermost/mattermost-server", BaseURL: "https://github.com/", ExpectedOwner: "mattermost", ExpectedRepo: "mattermost-server"},
+		{Full: "mattermost/mattermost-server", BaseURL: "https://forgejo.com/", ExpectedOwner: "mattermost", ExpectedRepo: "mattermost-server"},
 		{Full: "https://example.org/mattermost/mattermost-server", BaseURL: "https://example.org/", ExpectedOwner: "mattermost", ExpectedRepo: "mattermost-server"},
-		{Full: "https://github.com/mattermost/mattermost-server", BaseURL: "https://github.com/", ExpectedOwner: "mattermost", ExpectedRepo: "mattermost-server"},
+		{Full: "https://forgejo.com/mattermost/mattermost-server", BaseURL: "https://forgejo.com/", ExpectedOwner: "mattermost", ExpectedRepo: "mattermost-server"},
 		{Full: "", BaseURL: "", ExpectedOwner: "", ExpectedRepo: ""},
 		{Full: "mattermost/mattermost/invalid_repo_url", BaseURL: "", ExpectedOwner: "mattermost", ExpectedRepo: "mattermost"},
-		{Full: "https://github.com/mattermost/mattermost/invalid_repo_url", BaseURL: "https://github.com/", ExpectedOwner: "mattermost", ExpectedRepo: "mattermost"},
+		{Full: "https://forgejo.com/mattermost/mattermost/invalid_repo_url", BaseURL: "https://forgejo.com/", ExpectedOwner: "mattermost", ExpectedRepo: "mattermost"},
 	}
 
 	for i, tc := range tcs {
@@ -238,21 +238,21 @@ func TestGetToDoDisplayText(t *testing.T) {
 			name: "title shorter than threshold, single-word repo name & empty notification type",
 			in: input{
 				"Issue title with less than 80 characters",
-				"https://github.com/mattermost/repo/issues/42",
+				"https://forgejo.com/mattermost/repo/issues/42",
 				"",
 				nil,
 			},
-			want: "* [mattermost/repo](https://github.com/mattermost/repo) : [Issue title with less than 80 characters](https://github.com/mattermost/repo/issues/42)\n",
+			want: "* [mattermost/repo](https://forgejo.com/mattermost/repo) : [Issue title with less than 80 characters](https://forgejo.com/mattermost/repo/issues/42)\n",
 		},
 		{
 			name: "title longer than threshold, multi-word repo name & Issue notification type",
 			in: input{
 				"This is an issue title which has with more than 80 characters and is completely random",
-				"https://github.com/mattermost/mattermost-plugin-github/issues/42",
+				"https://forgejo.com/mattermost/mattermost-plugin-github/issues/42",
 				"Issue",
 				nil,
 			},
-			want: "* [mattermost/...github](https://github.com/mattermost/mattermost-plugin-github) Issue : [This is an issue title which has with more than 80 characters and is completely...](https://github.com/mattermost/mattermost-plugin-github/issues/42)\n",
+			want: "* [mattermost/...github](https://forgejo.com/mattermost/mattermost-plugin-github) Issue : [This is an issue title which has with more than 80 characters and is completely...](https://forgejo.com/mattermost/mattermost-plugin-github/issues/42)\n",
 		},
 		{
 			name: "title longer than threshold, multi-word repo name & Issue notification type",
@@ -261,20 +261,29 @@ func TestGetToDoDisplayText(t *testing.T) {
 				"",
 				"Discussion",
 				&github.Repository{
-					HTMLURL: model.NewPointer("https://github.com/mattermost/mattermost-plugin-github"),
+					HTMLURL: model.NewPointer("https://forgejo.com/mattermost/mattermost-plugin-github"),
 					Owner: &github.User{
 						Login: model.NewPointer("mattermost"),
 					},
 					Name: model.NewPointer("mattermost-plugin-github"),
 				},
 			},
-			want: "* [mattermost/...github](https://github.com/mattermost/mattermost-plugin-github) Discussion : Test discussion title!\n",
+			want: "* [mattermost/...github](https://forgejo.com/mattermost/mattermost-plugin-github) Discussion : Test discussion title!\n",
 		},
 	}
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			got := getToDoDisplayText("https://github.com/", tc.in.title, tc.in.url, tc.in.notifType, tc.in.repository)
+			var repo *FRepository
+			if tc.in.repository != nil {
+				repo = &FRepository{
+					Owner: &FUser{Login: tc.in.repository.Owner.Login},
+					HTMLURL: tc.in.repository.HTMLURL,
+					Name:    tc.in.repository.Name,
+				}
+			}
+
+			got := getToDoDisplayText("https://forgejo.com/", tc.in.title, tc.in.url, tc.in.notifType, repo)
 			assert.Equal(t, tc.want, got)
 		})
 	}

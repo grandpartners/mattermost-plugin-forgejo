@@ -15,12 +15,12 @@ import (
 var repo = github.Repository{
 	FullName:        sToP("mattermost-plugin-github"),
 	StargazersCount: iToP(1),
-	HTMLURL:         sToP("https://github.com/mattermost/mattermost-plugin-github"),
+	HTMLURL:         sToP("https://forgejo.com/mattermost/mattermost-plugin-github"),
 }
 
 var pushEventRepository = github.PushEventRepository{
 	FullName: sToP("mattermost-plugin-github"),
-	HTMLURL:  sToP("https://github.com/mattermost/mattermost-plugin-github"),
+	HTMLURL:  sToP("https://forgejo.com/mattermost/mattermost-plugin-github"),
 }
 
 var singleLabel = []*github.Label{
@@ -40,7 +40,7 @@ var labels = []*github.Label{
 
 var pullRequest = github.PullRequest{
 	Number:    iToP(42),
-	HTMLURL:   sToP("https://github.com/mattermost/mattermost-plugin-github/pull/42"),
+	HTMLURL:   sToP("https://forgejo.com/mattermost/mattermost-plugin-github/pull/42"),
 	Title:     sToP("Leverage git-get-head"),
 	CreatedAt: tToP(time.Date(2019, 04, 01, 02, 03, 04, 0, time.UTC)),
 	UpdatedAt: tToP(time.Date(2019, 05, 01, 02, 03, 04, 0, time.UTC)),
@@ -53,7 +53,7 @@ var pullRequest = github.PullRequest{
 
 var pullRequestWithMentions = github.PullRequest{
 	Number:    iToP(42),
-	HTMLURL:   sToP("https://github.com/mattermost/mattermost-plugin-github/pull/42"),
+	HTMLURL:   sToP("https://forgejo.com/mattermost/mattermost-plugin-github/pull/42"),
 	Title:     sToP("Leverage git-get-head"),
 	CreatedAt: tToP(time.Date(2019, 04, 01, 02, 03, 04, 0, time.UTC)),
 	UpdatedAt: tToP(time.Date(2019, 05, 01, 02, 03, 04, 0, time.UTC)),
@@ -67,7 +67,7 @@ var pullRequestWithMentions = github.PullRequest{
 
 var pullRequestWithLabelAndAssignee = github.PullRequest{
 	Number:    iToP(42),
-	HTMLURL:   sToP("https://github.com/mattermost/mattermost-plugin-github/pull/42"),
+	HTMLURL:   sToP("https://forgejo.com/mattermost/mattermost-plugin-github/pull/42"),
 	Title:     sToP("Leverage git-get-head"),
 	CreatedAt: tToP(time.Date(2019, 04, 01, 02, 03, 04, 0, time.UTC)),
 	UpdatedAt: tToP(time.Date(2019, 05, 01, 02, 03, 04, 0, time.UTC)),
@@ -82,7 +82,7 @@ var pullRequestWithLabelAndAssignee = github.PullRequest{
 
 var pullRequestWithMultipleLabelsAndAssignees = github.PullRequest{
 	Number:    iToP(42),
-	HTMLURL:   sToP("https://github.com/mattermost/mattermost-plugin-github/pull/42"),
+	HTMLURL:   sToP("https://forgejo.com/mattermost/mattermost-plugin-github/pull/42"),
 	Title:     sToP("Leverage git-get-head"),
 	CreatedAt: tToP(time.Date(2019, 04, 01, 02, 03, 04, 0, time.UTC)),
 	UpdatedAt: tToP(time.Date(2019, 05, 01, 02, 03, 04, 0, time.UTC)),
@@ -97,7 +97,7 @@ var pullRequestWithMultipleLabelsAndAssignees = github.PullRequest{
 
 var mergedPullRequest = github.PullRequest{
 	Number:    iToP(42),
-	HTMLURL:   sToP("https://github.com/mattermost/mattermost-plugin-github/pull/42"),
+	HTMLURL:   sToP("https://forgejo.com/mattermost/mattermost-plugin-github/pull/42"),
 	Title:     sToP("Leverage git-get-head"),
 	CreatedAt: tToP(time.Date(2019, 04, 01, 02, 03, 04, 0, time.UTC)),
 	UpdatedAt: tToP(time.Date(2019, 05, 01, 02, 03, 04, 0, time.UTC)),
@@ -111,7 +111,7 @@ var mergedPullRequest = github.PullRequest{
 
 var issue = github.Issue{
 	Number:    iToP(1),
-	HTMLURL:   sToP("https://github.com/mattermost/mattermost-plugin-github/issues/1"),
+	HTMLURL:   sToP("https://forgejo.com/mattermost/mattermost-plugin-github/issues/1"),
 	Title:     sToP("Implement git-get-head"),
 	CreatedAt: tToP(time.Date(2019, 04, 01, 02, 03, 04, 0, time.UTC)),
 	UpdatedAt: tToP(time.Date(2019, 05, 01, 02, 03, 04, 0, time.UTC)),
@@ -120,7 +120,7 @@ var issue = github.Issue{
 
 var issueWithMentions = github.Issue{
 	Number:    iToP(1),
-	HTMLURL:   sToP("https://github.com/mattermost/mattermost-plugin-github/issues/1"),
+	HTMLURL:   sToP("https://forgejo.com/mattermost/mattermost-plugin-github/issues/1"),
 	Title:     sToP("Implement git-get-head"),
 	CreatedAt: tToP(time.Date(2019, 04, 01, 02, 03, 04, 0, time.UTC)),
 	UpdatedAt: tToP(time.Date(2019, 05, 01, 02, 03, 04, 0, time.UTC)),
@@ -130,7 +130,7 @@ var issueWithMentions = github.Issue{
 
 var issueWithLabelAndAssignee = github.Issue{
 	Number:    iToP(1),
-	HTMLURL:   sToP("https://github.com/mattermost/mattermost-plugin-github/issues/1"),
+	HTMLURL:   sToP("https://forgejo.com/mattermost/mattermost-plugin-github/issues/1"),
 	Title:     sToP("Implement git-get-head"),
 	CreatedAt: tToP(time.Date(2019, 04, 01, 02, 03, 04, 0, time.UTC)),
 	UpdatedAt: tToP(time.Date(2019, 05, 01, 02, 03, 04, 0, time.UTC)),
@@ -142,7 +142,7 @@ var issueWithLabelAndAssignee = github.Issue{
 
 var issueWithMultipleLabelsAndAssignee = github.Issue{
 	Number:    iToP(1),
-	HTMLURL:   sToP("https://github.com/mattermost/mattermost-plugin-github/issues/1"),
+	HTMLURL:   sToP("https://forgejo.com/mattermost/mattermost-plugin-github/issues/1"),
 	Title:     sToP("Implement git-get-head"),
 	CreatedAt: tToP(time.Date(2019, 04, 01, 02, 03, 04, 0, time.UTC)),
 	UpdatedAt: tToP(time.Date(2019, 05, 01, 02, 03, 04, 0, time.UTC)),
@@ -153,10 +153,10 @@ var issueWithMultipleLabelsAndAssignee = github.Issue{
 
 var user = github.User{
 	Login:   sToP("panda"),
-	HTMLURL: sToP("https://github.com/panda"),
+	HTMLURL: sToP("https://forgejo.com/panda"),
 }
 
-// A map of known associations between GitHub users and Mattermost users
+// A map of known associations between Forgejo users and Mattermost users
 var usernameMap = map[string]string{
 	"panda":          "pandabot",
 	"asaadmahmood":   "asaad.mahmood",
@@ -167,7 +167,7 @@ var usernameMap = map[string]string{
 }
 
 // gitHubMentions and usernameMentions are two strings that contain mentions to
-// the users stored in usernameMap, the first using their GitHub usernames and
+// the users stored in usernameMap, the first using their Forgejo usernames and
 // the second using their Mattermost usernames.
 // There is also an unknown user appended at the end of both strings that
 // should remain unchanged when resolving the usernames.
@@ -187,12 +187,12 @@ var gitHubMentions, usernameMentions = func() (string, string) {
 
 func withGitHubUserNameMapping(test func(*testing.T)) func(*testing.T) {
 	return func(t *testing.T) {
-		gitHubToUsernameMappingCallback = func(gitHubUsername string) string {
+		forgejoToUsernameMappingCallback = func(gitHubUsername string) string {
 			return usernameMap[gitHubUsername]
 		}
 
 		defer func() {
-			gitHubToUsernameMappingCallback = nil
+			forgejoToUsernameMappingCallback = nil
 		}()
 
 		test(t)
@@ -201,23 +201,23 @@ func withGitHubUserNameMapping(test func(*testing.T)) func(*testing.T) {
 
 func TestUserTemplate(t *testing.T) {
 	t.Run("no callback", func(t *testing.T) {
-		gitHubToUsernameMappingCallback = nil
+		forgejoToUsernameMappingCallback = nil
 
-		expected := "[panda](https://github.com/panda)"
+		expected := "[panda](https://forgejo.com/panda)"
 		actual, err := renderTemplate("user", &user)
 		require.NoError(t, err)
 		require.Equal(t, expected, actual)
 	})
 
 	t.Run("no result", func(t *testing.T) {
-		gitHubToUsernameMappingCallback = func(githubUsername string) string {
+		forgejoToUsernameMappingCallback = func(githubUsername string) string {
 			return ""
 		}
 		defer func() {
-			gitHubToUsernameMappingCallback = nil
+			forgejoToUsernameMappingCallback = nil
 		}()
 
-		expected := "[panda](https://github.com/panda)"
+		expected := "[panda](https://forgejo.com/panda)"
 		actual, err := renderTemplate("user", &user)
 		require.NoError(t, err)
 		require.Equal(t, expected, actual)
@@ -235,8 +235,8 @@ func TestNewPRMessageTemplate(t *testing.T) {
 	t.Run("without mentions", func(t *testing.T) {
 		expected := `
 #### Leverage git-get-head
-##### [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42)
-#new-pull-request by [panda](https://github.com/panda)
+##### [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42)
+#new-pull-request by [panda](https://forgejo.com/panda)
 
 git-get-head gets the non-sent upstream heads inside the stashed non-cleaned applied areas, and after pruning bases to many archives, you can initialize the origin of the bases.
 
@@ -257,7 +257,7 @@ git-get-head gets the non-sent upstream heads inside the stashed non-cleaned app
 	t.Run("with mentions", withGitHubUserNameMapping(func(t *testing.T) {
 		expected := `
 #### Leverage git-get-head
-##### [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42)
+##### [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42)
 #new-pull-request by @pandabot
 
 git-get-head gets the non-sent upstream heads inside the stashed non-cleaned applied areas, and after pruning bases to many archives, you can initialize the origin of the bases.
@@ -280,10 +280,10 @@ git-get-head gets the non-sent upstream heads inside the stashed non-cleaned app
 	t.Run("with single label and assignee", func(t *testing.T) {
 		expected := `
 #### Leverage git-get-head
-##### [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42)
-#new-pull-request by [panda](https://github.com/panda)
-Labels: ` + "[`Help Wanted`](https://github.com/mattermost/mattermost-plugin-github/labels/Help%20Wanted)" + `
-Assignees: [panda](https://github.com/panda)
+##### [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42)
+#new-pull-request by [panda](https://forgejo.com/panda)
+Labels: ` + "[`Help Wanted`](https://forgejo.com/mattermost/mattermost-plugin-github/labels/Help%20Wanted)" + `
+Assignees: [panda](https://forgejo.com/panda)
 
 git-get-head gets the non-sent upstream heads inside the stashed non-cleaned applied areas, and after pruning bases to many archives, you can initialize the origin of the bases.
 
@@ -304,10 +304,10 @@ git-get-head gets the non-sent upstream heads inside the stashed non-cleaned app
 	t.Run("with multiple labels and assignees", func(t *testing.T) {
 		expected := `
 #### Leverage git-get-head
-##### [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42)
-#new-pull-request by [panda](https://github.com/panda)
-Labels: ` + "[`Help Wanted`](https://github.com/mattermost/mattermost-plugin-github/labels/Help%20Wanted), [`Tech/Go`](https://github.com/mattermost/mattermost-plugin-github/labels/Tech%2FGo)" + `
-Assignees: [panda](https://github.com/panda), [panda](https://github.com/panda)
+##### [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42)
+#new-pull-request by [panda](https://forgejo.com/panda)
+Labels: ` + "[`Help Wanted`](https://forgejo.com/mattermost/mattermost-plugin-github/labels/Help%20Wanted), [`Tech/Go`](https://forgejo.com/mattermost/mattermost-plugin-github/labels/Tech%2FGo)" + `
+Assignees: [panda](https://forgejo.com/panda), [panda](https://forgejo.com/panda)
 
 git-get-head gets the non-sent upstream heads inside the stashed non-cleaned applied areas, and after pruning bases to many archives, you can initialize the origin of the bases.
 
@@ -327,7 +327,7 @@ git-get-head gets the non-sent upstream heads inside the stashed non-cleaned app
 
 	t.Run("with collapsed render style", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) New pull request [#42 Leverage git-get-head](https://github.com/mattermost/mattermost-plugin-github/pull/42) was opened by [panda](https://github.com/panda).
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) New pull request [#42 Leverage git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42) was opened by [panda](https://forgejo.com/panda).
 `
 
 		actual, err := renderTemplate("newPR", &EventWithRenderConfig{
@@ -347,8 +347,8 @@ git-get-head gets the non-sent upstream heads inside the stashed non-cleaned app
 	t.Run("with skip-body render style", func(t *testing.T) {
 		expected := `
 #### Leverage git-get-head
-##### [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42)
-#new-pull-request by [panda](https://github.com/panda)
+##### [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42)
+#new-pull-request by [panda](https://forgejo.com/panda)
 `
 
 		actual, err := renderTemplate("newPR", &EventWithRenderConfig{
@@ -369,7 +369,7 @@ git-get-head gets the non-sent upstream heads inside the stashed non-cleaned app
 func TestClosedPRMessageTemplate(t *testing.T) {
 	t.Run("merged", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) Pull request [#42 Leverage git-get-head](https://github.com/mattermost/mattermost-plugin-github/pull/42) was merged by [panda](https://github.com/panda).
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) Pull request [#42 Leverage git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42) was merged by [panda](https://forgejo.com/panda).
 `
 
 		actual, err := renderTemplate("closedPR", &github.PullRequestEvent{
@@ -383,7 +383,7 @@ func TestClosedPRMessageTemplate(t *testing.T) {
 
 	t.Run("closed", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) Pull request [#42 Leverage git-get-head](https://github.com/mattermost/mattermost-plugin-github/pull/42) was closed by [panda](https://github.com/panda).
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) Pull request [#42 Leverage git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42) was closed by [panda](https://forgejo.com/panda).
 `
 
 		actual, err := renderTemplate("closedPR", &github.PullRequestEvent{
@@ -399,7 +399,7 @@ func TestClosedPRMessageTemplate(t *testing.T) {
 func TestReopenedPRMessageTemplate(t *testing.T) {
 	t.Run("reopened", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) Pull request [#42 Leverage git-get-head](https://github.com/mattermost/mattermost-plugin-github/pull/42) was reopened by [panda](https://github.com/panda).
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) Pull request [#42 Leverage git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42) was reopened by [panda](https://forgejo.com/panda).
 `
 
 		actual, err := renderTemplate("reopenedPR", &github.PullRequestEvent{
@@ -415,8 +415,8 @@ func TestReopenedPRMessageTemplate(t *testing.T) {
 func TestPullRequestLabelledTemplate(t *testing.T) {
 	expected := `
 #### Leverage git-get-head
-##### [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42)
-#pull-request-labeled ` + "`label-name`" + ` by [panda](https://github.com/panda)
+##### [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42)
+#pull-request-labeled ` + "`label-name`" + ` by [panda](https://forgejo.com/panda)
 `
 
 	actual, err := renderTemplate("pullRequestLabelled", &github.PullRequestEvent{
@@ -435,8 +435,8 @@ func TestNewIssueTemplate(t *testing.T) {
 	t.Run("without mentions", func(t *testing.T) {
 		expected := `
 #### Implement git-get-head
-##### [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1)
-#new-issue by [panda](https://github.com/panda)
+##### [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1)
+#new-issue by [panda](https://forgejo.com/panda)
 
 git-get-head sounds like a great feature we should support
 `
@@ -456,7 +456,7 @@ git-get-head sounds like a great feature we should support
 	t.Run("with mentions", withGitHubUserNameMapping(func(t *testing.T) {
 		expected := `
 #### Implement git-get-head
-##### [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1)
+##### [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1)
 #new-issue by @pandabot
 
 git-get-head sounds like a great feature we should support
@@ -478,10 +478,10 @@ git-get-head sounds like a great feature we should support
 	t.Run("with single label and assignee", func(t *testing.T) {
 		expected := `
 #### Implement git-get-head
-##### [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1)
-#new-issue by [panda](https://github.com/panda)
-Labels: ` + "[`Help Wanted`](https://github.com/mattermost/mattermost-plugin-github/labels/Help%20Wanted)" + `
-Assignees: [panda](https://github.com/panda)
+##### [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1)
+#new-issue by [panda](https://forgejo.com/panda)
+Labels: ` + "[`Help Wanted`](https://forgejo.com/mattermost/mattermost-plugin-github/labels/Help%20Wanted)" + `
+Assignees: [panda](https://forgejo.com/panda)
 
 git-get-head sounds like a great feature we should support
 `
@@ -501,10 +501,10 @@ git-get-head sounds like a great feature we should support
 	t.Run("with multiple labels and assignees", func(t *testing.T) {
 		expected := `
 #### Implement git-get-head
-##### [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1)
-#new-issue by [panda](https://github.com/panda)
-Labels: ` + "[`Help Wanted`](https://github.com/mattermost/mattermost-plugin-github/labels/Help%20Wanted), [`Tech/Go`](https://github.com/mattermost/mattermost-plugin-github/labels/Tech%2FGo)" + `
-Assignees: [panda](https://github.com/panda), [panda](https://github.com/panda)
+##### [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1)
+#new-issue by [panda](https://forgejo.com/panda)
+Labels: ` + "[`Help Wanted`](https://forgejo.com/mattermost/mattermost-plugin-github/labels/Help%20Wanted), [`Tech/Go`](https://forgejo.com/mattermost/mattermost-plugin-github/labels/Tech%2FGo)" + `
+Assignees: [panda](https://forgejo.com/panda), [panda](https://forgejo.com/panda)
 
 git-get-head sounds like a great feature we should support
 `
@@ -523,7 +523,7 @@ git-get-head sounds like a great feature we should support
 
 	t.Run("with collapsed render style", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) New issue [#1 Implement git-get-head](https://github.com/mattermost/mattermost-plugin-github/issues/1) opened by [panda](https://github.com/panda).
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) New issue [#1 Implement git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1) opened by [panda](https://forgejo.com/panda).
 `
 
 		actual, err := renderTemplate("newIssue", &EventWithRenderConfig{
@@ -543,8 +543,8 @@ git-get-head sounds like a great feature we should support
 	t.Run("with skip-body render style", func(t *testing.T) {
 		expected := `
 #### Implement git-get-head
-##### [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1)
-#new-issue by [panda](https://github.com/panda)
+##### [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1)
+#new-issue by [panda](https://forgejo.com/panda)
 `
 
 		actual, err := renderTemplate("newIssue", &EventWithRenderConfig{
@@ -564,7 +564,7 @@ git-get-head sounds like a great feature we should support
 
 func TestClosedIssueTemplate(t *testing.T) {
 	expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) Issue [#1 Implement git-get-head](https://github.com/mattermost/mattermost-plugin-github/issues/1) closed by [panda](https://github.com/panda).
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) Issue [#1 Implement git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1) closed by [panda](https://forgejo.com/panda).
 `
 
 	actual, err := renderTemplate("closedIssue", GetEventWithRenderConfig(
@@ -581,7 +581,7 @@ func TestClosedIssueTemplate(t *testing.T) {
 
 func TestReopenedIssueTemplate(t *testing.T) {
 	expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) Issue [#1 Implement git-get-head](https://github.com/mattermost/mattermost-plugin-github/issues/1) reopened by [panda](https://github.com/panda).
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) Issue [#1 Implement git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1) reopened by [panda](https://forgejo.com/panda).
 `
 
 	actual, err := renderTemplate("reopenedIssue", GetEventWithRenderConfig(
@@ -599,8 +599,8 @@ func TestReopenedIssueTemplate(t *testing.T) {
 func TestIssueLabelledTemplate(t *testing.T) {
 	expected := `
 #### Implement git-get-head
-##### [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1)
-#issue-labeled ` + "`label-name`" + ` by [panda](https://github.com/panda).
+##### [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1)
+#issue-labeled ` + "`label-name`" + ` by [panda](https://forgejo.com/panda).
 `
 
 	actual, err := renderTemplate("issueLabelled", GetEventWithRenderConfig(
@@ -621,8 +621,8 @@ func TestIssueLabelledTemplate(t *testing.T) {
 func TestPushedCommitsTemplate(t *testing.T) {
 	t.Run("single commit", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) pushed [1 new commit](https://github.com/mattermost/mattermost-plugin-github/compare/master...branch) to [\[mattermost-plugin-github:branch\]](https://github.com/mattermost/mattermost-plugin-github/tree/branch):
-[` + "`a10867`" + `](https://github.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240) Leverage git-get-head - panda
+[panda](https://forgejo.com/panda) pushed [1 new commit](https://forgejo.com/mattermost/mattermost-plugin-github/compare/master...branch) to [\[mattermost-plugin-github:branch\]](https://forgejo.com/mattermost/mattermost-plugin-github/tree/branch):
+[` + "`a10867`" + `](https://forgejo.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240) Leverage git-get-head - panda
 `
 
 		actual, err := renderTemplate("pushedCommits", &github.PushEvent{
@@ -632,14 +632,14 @@ func TestPushedCommitsTemplate(t *testing.T) {
 			Commits: []*github.HeadCommit{
 				{
 					ID:      sToP("a10867b14bb761a232cd80139fbd4c0d33264240"),
-					URL:     sToP("https://github.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240"),
+					URL:     sToP("https://forgejo.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240"),
 					Message: sToP("Leverage git-get-head"),
 					Committer: &github.CommitAuthor{
 						Name: sToP("panda"),
 					},
 				},
 			},
-			Compare: sToP("https://github.com/mattermost/mattermost-plugin-github/compare/master...branch"),
+			Compare: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/compare/master...branch"),
 			Ref:     sToP("refs/heads/branch"),
 		})
 		require.NoError(t, err)
@@ -648,8 +648,8 @@ func TestPushedCommitsTemplate(t *testing.T) {
 
 	t.Run("single commit, forced", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) force-pushed [1 new commit](https://github.com/mattermost/mattermost-plugin-github/compare/master...branch) to [\[mattermost-plugin-github:branch\]](https://github.com/mattermost/mattermost-plugin-github/tree/branch):
-[` + "`a10867`" + `](https://github.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240) Leverage git-get-head - panda
+[panda](https://forgejo.com/panda) force-pushed [1 new commit](https://forgejo.com/mattermost/mattermost-plugin-github/compare/master...branch) to [\[mattermost-plugin-github:branch\]](https://forgejo.com/mattermost/mattermost-plugin-github/tree/branch):
+[` + "`a10867`" + `](https://forgejo.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240) Leverage git-get-head - panda
 `
 
 		actual, err := renderTemplate("pushedCommits", &github.PushEvent{
@@ -659,14 +659,14 @@ func TestPushedCommitsTemplate(t *testing.T) {
 			Commits: []*github.HeadCommit{
 				{
 					ID:      sToP("a10867b14bb761a232cd80139fbd4c0d33264240"),
-					URL:     sToP("https://github.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240"),
+					URL:     sToP("https://forgejo.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240"),
 					Message: sToP("Leverage git-get-head"),
 					Committer: &github.CommitAuthor{
 						Name: sToP("panda"),
 					},
 				},
 			},
-			Compare: sToP("https://github.com/mattermost/mattermost-plugin-github/compare/master...branch"),
+			Compare: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/compare/master...branch"),
 			Ref:     sToP("refs/heads/branch"),
 		})
 		require.NoError(t, err)
@@ -675,9 +675,9 @@ func TestPushedCommitsTemplate(t *testing.T) {
 
 	t.Run("two commits", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) pushed [2 new commits](https://github.com/mattermost/mattermost-plugin-github/compare/master...branch) to [\[mattermost-plugin-github:branch\]](https://github.com/mattermost/mattermost-plugin-github/tree/branch):
-[` + "`a10867`" + `](https://github.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240) Leverage git-get-head - panda
-[` + "`a20867`" + `](https://github.com/mattermost/mattermost-plugin-github/commit/a20867b14bb761a232cd80139fbd4c0d33264240) Merge master - panda
+[panda](https://forgejo.com/panda) pushed [2 new commits](https://forgejo.com/mattermost/mattermost-plugin-github/compare/master...branch) to [\[mattermost-plugin-github:branch\]](https://forgejo.com/mattermost/mattermost-plugin-github/tree/branch):
+[` + "`a10867`" + `](https://forgejo.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240) Leverage git-get-head - panda
+[` + "`a20867`" + `](https://forgejo.com/mattermost/mattermost-plugin-github/commit/a20867b14bb761a232cd80139fbd4c0d33264240) Merge master - panda
 `
 
 		actual, err := renderTemplate("pushedCommits", &github.PushEvent{
@@ -687,7 +687,7 @@ func TestPushedCommitsTemplate(t *testing.T) {
 			Commits: []*github.HeadCommit{
 				{
 					ID:      sToP("a10867b14bb761a232cd80139fbd4c0d33264240"),
-					URL:     sToP("https://github.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240"),
+					URL:     sToP("https://forgejo.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240"),
 					Message: sToP("Leverage git-get-head"),
 					Committer: &github.CommitAuthor{
 						Name: sToP("panda"),
@@ -695,14 +695,14 @@ func TestPushedCommitsTemplate(t *testing.T) {
 				},
 				{
 					ID:      sToP("a20867b14bb761a232cd80139fbd4c0d33264240"),
-					URL:     sToP("https://github.com/mattermost/mattermost-plugin-github/commit/a20867b14bb761a232cd80139fbd4c0d33264240"),
+					URL:     sToP("https://forgejo.com/mattermost/mattermost-plugin-github/commit/a20867b14bb761a232cd80139fbd4c0d33264240"),
 					Message: sToP("Merge master"),
 					Committer: &github.CommitAuthor{
 						Name: sToP("panda"),
 					},
 				},
 			},
-			Compare: sToP("https://github.com/mattermost/mattermost-plugin-github/compare/master...branch"),
+			Compare: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/compare/master...branch"),
 			Ref:     sToP("refs/heads/branch"),
 		})
 		require.NoError(t, err)
@@ -711,10 +711,10 @@ func TestPushedCommitsTemplate(t *testing.T) {
 
 	t.Run("three commits", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) pushed [3 new commits](https://github.com/mattermost/mattermost-plugin-github/compare/master...branch) to [\[mattermost-plugin-github:branch\]](https://github.com/mattermost/mattermost-plugin-github/tree/branch):
-[` + "`a10867`" + `](https://github.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240) Leverage git-get-head - panda
-[` + "`a20867`" + `](https://github.com/mattermost/mattermost-plugin-github/commit/a20867b14bb761a232cd80139fbd4c0d33264240) Merge master - panda
-[` + "`a30867`" + `](https://github.com/mattermost/mattermost-plugin-github/commit/a30867b14bb761a232cd80139fbd4c0d33264240) Fix build - panda
+[panda](https://forgejo.com/panda) pushed [3 new commits](https://forgejo.com/mattermost/mattermost-plugin-github/compare/master...branch) to [\[mattermost-plugin-github:branch\]](https://forgejo.com/mattermost/mattermost-plugin-github/tree/branch):
+[` + "`a10867`" + `](https://forgejo.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240) Leverage git-get-head - panda
+[` + "`a20867`" + `](https://forgejo.com/mattermost/mattermost-plugin-github/commit/a20867b14bb761a232cd80139fbd4c0d33264240) Merge master - panda
+[` + "`a30867`" + `](https://forgejo.com/mattermost/mattermost-plugin-github/commit/a30867b14bb761a232cd80139fbd4c0d33264240) Fix build - panda
 `
 
 		actual, err := renderTemplate("pushedCommits", &github.PushEvent{
@@ -724,7 +724,7 @@ func TestPushedCommitsTemplate(t *testing.T) {
 			Commits: []*github.HeadCommit{
 				{
 					ID:      sToP("a10867b14bb761a232cd80139fbd4c0d33264240"),
-					URL:     sToP("https://github.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240"),
+					URL:     sToP("https://forgejo.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240"),
 					Message: sToP("Leverage git-get-head"),
 					Committer: &github.CommitAuthor{
 						Name: sToP("panda"),
@@ -732,7 +732,7 @@ func TestPushedCommitsTemplate(t *testing.T) {
 				},
 				{
 					ID:      sToP("a20867b14bb761a232cd80139fbd4c0d33264240"),
-					URL:     sToP("https://github.com/mattermost/mattermost-plugin-github/commit/a20867b14bb761a232cd80139fbd4c0d33264240"),
+					URL:     sToP("https://forgejo.com/mattermost/mattermost-plugin-github/commit/a20867b14bb761a232cd80139fbd4c0d33264240"),
 					Message: sToP("Merge master"),
 					Committer: &github.CommitAuthor{
 						Name: sToP("panda"),
@@ -740,14 +740,14 @@ func TestPushedCommitsTemplate(t *testing.T) {
 				},
 				{
 					ID:      sToP("a30867b14bb761a232cd80139fbd4c0d33264240"),
-					URL:     sToP("https://github.com/mattermost/mattermost-plugin-github/commit/a30867b14bb761a232cd80139fbd4c0d33264240"),
+					URL:     sToP("https://forgejo.com/mattermost/mattermost-plugin-github/commit/a30867b14bb761a232cd80139fbd4c0d33264240"),
 					Message: sToP("Fix build"),
 					Committer: &github.CommitAuthor{
 						Name: sToP("panda"),
 					},
 				},
 			},
-			Compare: sToP("https://github.com/mattermost/mattermost-plugin-github/compare/master...branch"),
+			Compare: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/compare/master...branch"),
 			Ref:     sToP("refs/heads/branch"),
 		})
 		require.NoError(t, err)
@@ -761,8 +761,8 @@ func TestPushedCommitsTemplate(t *testing.T) {
 		})
 
 		expected := `
-[panda](https://github.com/panda) pushed [1 new commit](https://github.com/mattermost/mattermost-plugin-github/compare/master...branch) to [\[mattermost-plugin-github:branch\]](https://github.com/mattermost/mattermost-plugin-github/tree/branch):
-[` + "`a10867`" + `](https://github.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240) Leverage git-get-head - lion
+[panda](https://forgejo.com/panda) pushed [1 new commit](https://forgejo.com/mattermost/mattermost-plugin-github/compare/master...branch) to [\[mattermost-plugin-github:branch\]](https://forgejo.com/mattermost/mattermost-plugin-github/tree/branch):
+[` + "`a10867`" + `](https://forgejo.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240) Leverage git-get-head - lion
 `
 
 		actual, err := renderTemplate("pushedCommits", &github.PushEvent{
@@ -772,7 +772,7 @@ func TestPushedCommitsTemplate(t *testing.T) {
 			Commits: []*github.HeadCommit{
 				{
 					ID:      sToP("a10867b14bb761a232cd80139fbd4c0d33264240"),
-					URL:     sToP("https://github.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240"),
+					URL:     sToP("https://forgejo.com/mattermost/mattermost-plugin-github/commit/a10867b14bb761a232cd80139fbd4c0d33264240"),
 					Message: sToP("Leverage git-get-head"),
 					Committer: &github.CommitAuthor{
 						Name: sToP("panda"),
@@ -782,7 +782,7 @@ func TestPushedCommitsTemplate(t *testing.T) {
 					},
 				},
 			},
-			Compare: sToP("https://github.com/mattermost/mattermost-plugin-github/compare/master...branch"),
+			Compare: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/compare/master...branch"),
 			Ref:     sToP("refs/heads/branch"),
 		})
 		require.NoError(t, err)
@@ -792,7 +792,7 @@ func TestPushedCommitsTemplate(t *testing.T) {
 
 func TestCreateMessageTemplate(t *testing.T) {
 	expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) branch [branchname](https://github.com/mattermost/mattermost-plugin-github/tree/branchname) created by [panda](https://github.com/panda)
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) branch [branchname](https://forgejo.com/mattermost/mattermost-plugin-github/tree/branchname) created by [panda](https://forgejo.com/panda)
 `
 
 	actual, err := renderTemplate("newCreateMessage", &github.CreateEvent{
@@ -807,7 +807,7 @@ func TestCreateMessageTemplate(t *testing.T) {
 
 func TestDeletedMessageTemplate(t *testing.T) {
 	expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) branch branchname deleted by [panda](https://github.com/panda)
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) branch branchname deleted by [panda](https://forgejo.com/panda)
 `
 
 	actual, err := renderTemplate("newDeleteMessage", &github.DeleteEvent{
@@ -822,7 +822,7 @@ func TestDeletedMessageTemplate(t *testing.T) {
 
 func TestRepoStarTemplate(t *testing.T) {
 	expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) starred by [panda](https://github.com/panda)
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) starred by [panda](https://forgejo.com/panda)
 It now has **1** stars.`
 
 	actual, err := renderTemplate("newRepoStar", &github.StarEvent{
@@ -837,7 +837,7 @@ It now has **1** stars.`
 func TestIssueCommentTemplate(t *testing.T) {
 	t.Run("non-email body without mentions", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) New comment by [panda](https://github.com/panda) on [#1 Implement git-get-head](https://github.com/mattermost/mattermost-plugin-github/issues/1):
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) New comment by [panda](https://forgejo.com/panda) on [#1 Implement git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1):
 
 git-get-head sounds like a great feature we should support
 `
@@ -856,7 +856,7 @@ git-get-head sounds like a great feature we should support
 
 	t.Run("email body without mentions", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) New comment by [panda](https://github.com/panda) on [#1 Implement git-get-head](https://github.com/mattermost/mattermost-plugin-github/issues/1):
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) New comment by [panda](https://forgejo.com/panda) on [#1 Implement git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1):
 
 git-get-head sounds like a great feature we should support
 `
@@ -866,7 +866,7 @@ git-get-head sounds like a great feature we should support
 			Issue:  &issue,
 			Sender: &user,
 			Comment: &github.IssueComment{
-				Body: sToP("git-get-head sounds like a great feature we should support\n\nOn January 1, 2020, panda wrote ... notifications@github.com"),
+				Body: sToP("git-get-head sounds like a great feature we should support\n\nOn January 1, 2020, panda wrote ... notifications@code.syn.st"),
 			},
 		})
 		require.NoError(t, err)
@@ -875,7 +875,7 @@ git-get-head sounds like a great feature we should support
 
 	t.Run("non-email body with mentions", withGitHubUserNameMapping(func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) New comment by @pandabot on [#1 Implement git-get-head](https://github.com/mattermost/mattermost-plugin-github/issues/1):
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) New comment by @pandabot on [#1 Implement git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1):
 
 git-get-head sounds like a great feature we should support
 ` + usernameMentions + `
@@ -895,7 +895,7 @@ git-get-head sounds like a great feature we should support
 
 	t.Run("email body with mentions", withGitHubUserNameMapping(func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) New comment by @pandabot on [#1 Implement git-get-head](https://github.com/mattermost/mattermost-plugin-github/issues/1):
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) New comment by @pandabot on [#1 Implement git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1):
 
 git-get-head sounds like a great feature we should support
 ` + usernameMentions + `
@@ -906,7 +906,7 @@ git-get-head sounds like a great feature we should support
 			Issue:  &issue,
 			Sender: &user,
 			Comment: &github.IssueComment{
-				Body: sToP("git-get-head sounds like a great feature we should support\n" + gitHubMentions + "\n\nOn January 1, 2020, panda wrote ... notifications@github.com"),
+				Body: sToP("git-get-head sounds like a great feature we should support\n" + gitHubMentions + "\n\nOn January 1, 2020, panda wrote ... notifications@code.syn.st"),
 			},
 		})
 		require.NoError(t, err)
@@ -917,7 +917,7 @@ git-get-head sounds like a great feature we should support
 func TestPullRequestReviewEventTemplate(t *testing.T) {
 	t.Run("approved", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) [panda](https://github.com/panda) approved [#42 Leverage git-get-head](https://github.com/mattermost/mattermost-plugin-github/pull/42):
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) [panda](https://forgejo.com/panda) approved [#42 Leverage git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42):
 
 Excited to see git-get-head land!
 `
@@ -937,7 +937,7 @@ Excited to see git-get-head land!
 
 	t.Run("commented", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) [panda](https://github.com/panda) commented on [#42 Leverage git-get-head](https://github.com/mattermost/mattermost-plugin-github/pull/42):
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) [panda](https://forgejo.com/panda) commented on [#42 Leverage git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42):
 
 Excited to see git-get-head land!
 `
@@ -957,7 +957,7 @@ Excited to see git-get-head land!
 
 	t.Run("requested changes", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) [panda](https://github.com/panda) requested changes on [#42 Leverage git-get-head](https://github.com/mattermost/mattermost-plugin-github/pull/42):
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) [panda](https://forgejo.com/panda) requested changes on [#42 Leverage git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42):
 
 Excited to see git-get-head land!
 `
@@ -977,7 +977,7 @@ Excited to see git-get-head land!
 
 	t.Run("approved with mentions", withGitHubUserNameMapping(func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) @pandabot approved [#42 Leverage git-get-head](https://github.com/mattermost/mattermost-plugin-github/pull/42):
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) @pandabot approved [#42 Leverage git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42):
 
 Excited to see git-get-head land!
 ` + usernameMentions + `
@@ -1000,7 +1000,7 @@ Excited to see git-get-head land!
 func TestPullRequestReviewCommentEventTemplate(t *testing.T) {
 	t.Run("without mentions", func(*testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) New review comment by [panda](https://github.com/panda) on [#42 Leverage git-get-head](https://github.com/mattermost/mattermost-plugin-github/pull/42):
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) New review comment by [panda](https://forgejo.com/panda) on [#42 Leverage git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42):
 
 Should this be here?
 `
@@ -1019,7 +1019,7 @@ Should this be here?
 
 	t.Run("with mentions", withGitHubUserNameMapping(func(*testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) New review comment by @pandabot on [#42 Leverage git-get-head](https://github.com/mattermost/mattermost-plugin-github/pull/42):
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) New review comment by @pandabot on [#42 Leverage git-get-head](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42):
 
 Should this be here?
 ` + usernameMentions + `
@@ -1041,7 +1041,7 @@ Should this be here?
 func TestCommentMentionNotificationTemplate(t *testing.T) {
 	t.Run("non-email body without mentions", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) mentioned you on [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
+[panda](https://forgejo.com/panda) mentioned you on [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
 >@cpanato, anytime?
 `
 
@@ -1050,7 +1050,7 @@ func TestCommentMentionNotificationTemplate(t *testing.T) {
 			Issue:  &issue,
 			Sender: &user,
 			Comment: &github.IssueComment{
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
 				Body:    sToP("@cpanato, anytime?"),
 			},
 		})
@@ -1060,7 +1060,7 @@ func TestCommentMentionNotificationTemplate(t *testing.T) {
 
 	t.Run("email body without mentions", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) mentioned you on [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
+[panda](https://forgejo.com/panda) mentioned you on [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
 >@cpanato, anytime?
 `
 
@@ -1069,8 +1069,8 @@ func TestCommentMentionNotificationTemplate(t *testing.T) {
 			Issue:  &issue,
 			Sender: &user,
 			Comment: &github.IssueComment{
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
-				Body:    sToP("@cpanato, anytime?\n\nOn January 1, 2020, panda wrote ... notifications@github.com"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
+				Body:    sToP("@cpanato, anytime?\n\nOn January 1, 2020, panda wrote ... notifications@code.syn.st"),
 			},
 		})
 		require.NoError(t, err)
@@ -1079,7 +1079,7 @@ func TestCommentMentionNotificationTemplate(t *testing.T) {
 
 	t.Run("non-email body with mentions", withGitHubUserNameMapping(func(t *testing.T) {
 		expected := `
-@pandabot mentioned you on [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
+@pandabot mentioned you on [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
 >@cpanato, anytime?
 >` + usernameMentions + `
 `
@@ -1089,7 +1089,7 @@ func TestCommentMentionNotificationTemplate(t *testing.T) {
 			Issue:  &issue,
 			Sender: &user,
 			Comment: &github.IssueComment{
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
 				Body:    sToP("@cpanato, anytime?\n" + gitHubMentions),
 			},
 		})
@@ -1099,7 +1099,7 @@ func TestCommentMentionNotificationTemplate(t *testing.T) {
 
 	t.Run("email body with mentions", withGitHubUserNameMapping(func(t *testing.T) {
 		expected := `
-@pandabot mentioned you on [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
+@pandabot mentioned you on [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
 >@cpanato, anytime?
 >` + usernameMentions + `
 `
@@ -1109,8 +1109,8 @@ func TestCommentMentionNotificationTemplate(t *testing.T) {
 			Issue:  &issue,
 			Sender: &user,
 			Comment: &github.IssueComment{
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
-				Body:    sToP("@cpanato, anytime?\n" + gitHubMentions + "\n\nOn January 1, 2020, panda wrote ... notifications@github.com"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
+				Body:    sToP("@cpanato, anytime?\n" + gitHubMentions + "\n\nOn January 1, 2020, panda wrote ... notifications@code.syn.st"),
 			},
 		})
 		require.NoError(t, err)
@@ -1121,7 +1121,7 @@ func TestCommentMentionNotificationTemplate(t *testing.T) {
 func TestCommentAuthorPullRequestNotificationTemplate(t *testing.T) {
 	t.Run("without mentions", func(*testing.T) {
 		expected := `
-[panda](https://github.com/panda) commented on your pull request [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
+[panda](https://forgejo.com/panda) commented on your pull request [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
 >@cpanato, anytime?
 `
 
@@ -1130,7 +1130,7 @@ func TestCommentAuthorPullRequestNotificationTemplate(t *testing.T) {
 			Issue:  &issue,
 			Sender: &user,
 			Comment: &github.IssueComment{
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
 				Body:    sToP("@cpanato, anytime?"),
 			},
 		})
@@ -1140,7 +1140,7 @@ func TestCommentAuthorPullRequestNotificationTemplate(t *testing.T) {
 
 	t.Run("with mentions", withGitHubUserNameMapping(func(*testing.T) {
 		expected := `
-@pandabot commented on your pull request [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
+@pandabot commented on your pull request [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
 >@cpanato, anytime?
 >` + usernameMentions + `
 `
@@ -1150,7 +1150,7 @@ func TestCommentAuthorPullRequestNotificationTemplate(t *testing.T) {
 			Issue:  &issue,
 			Sender: &user,
 			Comment: &github.IssueComment{
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
 				Body:    sToP("@cpanato, anytime?\n" + gitHubMentions),
 			},
 		})
@@ -1161,7 +1161,7 @@ func TestCommentAuthorPullRequestNotificationTemplate(t *testing.T) {
 
 func TestCommentAuthorIssueNotificationTemplate(t *testing.T) {
 	expected := `
-[panda](https://github.com/panda) commented on your issue [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
+[panda](https://forgejo.com/panda) commented on your issue [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3) - Implement git-get-head:
 >@cpanato, anytime?
 `
 
@@ -1170,7 +1170,7 @@ func TestCommentAuthorIssueNotificationTemplate(t *testing.T) {
 		Issue:  &issue,
 		Sender: &user,
 		Comment: &github.IssueComment{
-			HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
+			HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/issues/1/comment/3"),
 			Body:    sToP("@cpanato, anytime?"),
 		},
 	})
@@ -1181,7 +1181,7 @@ func TestCommentAuthorIssueNotificationTemplate(t *testing.T) {
 func TestPullRequestNotification(t *testing.T) {
 	t.Run("review requested", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) requested your review on [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42) - Leverage git-get-head
+[panda](https://forgejo.com/panda) requested your review on [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42) - Leverage git-get-head
 `
 
 		actual, err := renderTemplate("pullRequestNotification", &github.PullRequestEvent{
@@ -1197,7 +1197,7 @@ func TestPullRequestNotification(t *testing.T) {
 
 	t.Run("merged", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) merged your pull request [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42) - Leverage git-get-head
+[panda](https://forgejo.com/panda) merged your pull request [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42) - Leverage git-get-head
 `
 
 		actual, err := renderTemplate("pullRequestNotification", &github.PullRequestEvent{
@@ -1213,7 +1213,7 @@ func TestPullRequestNotification(t *testing.T) {
 
 	t.Run("closed", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) closed your pull request [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42) - Leverage git-get-head
+[panda](https://forgejo.com/panda) closed your pull request [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42) - Leverage git-get-head
 `
 
 		actual, err := renderTemplate("pullRequestNotification", &github.PullRequestEvent{
@@ -1229,7 +1229,7 @@ func TestPullRequestNotification(t *testing.T) {
 
 	t.Run("reopened", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) reopened your pull request [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42) - Leverage git-get-head
+[panda](https://forgejo.com/panda) reopened your pull request [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42) - Leverage git-get-head
 `
 
 		actual, err := renderTemplate("pullRequestNotification", &github.PullRequestEvent{
@@ -1245,7 +1245,7 @@ func TestPullRequestNotification(t *testing.T) {
 
 	t.Run("assigned", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) assigned you to pull request [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42) - Leverage git-get-head
+[panda](https://forgejo.com/panda) assigned you to pull request [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42) - Leverage git-get-head
 `
 
 		actual, err := renderTemplate("pullRequestNotification", &github.PullRequestEvent{
@@ -1263,7 +1263,7 @@ func TestPullRequestNotification(t *testing.T) {
 func TestIssueNotification(t *testing.T) {
 	t.Run("closed", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) closed your issue [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1) - Implement git-get-head
+[panda](https://forgejo.com/panda) closed your issue [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1) - Implement git-get-head
 `
 
 		actual, err := renderTemplate("issueNotification", &github.IssuesEvent{
@@ -1278,7 +1278,7 @@ func TestIssueNotification(t *testing.T) {
 
 	t.Run("reopened", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) reopened your issue [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1) - Implement git-get-head
+[panda](https://forgejo.com/panda) reopened your issue [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1) - Implement git-get-head
 `
 
 		actual, err := renderTemplate("issueNotification", &github.IssuesEvent{
@@ -1293,7 +1293,7 @@ func TestIssueNotification(t *testing.T) {
 
 	t.Run("assigned you", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) assigned you to issue [mattermost-plugin-github#1](https://github.com/mattermost/mattermost-plugin-github/issues/1) - Implement git-get-head
+[panda](https://forgejo.com/panda) assigned you to issue [mattermost-plugin-github#1](https://forgejo.com/mattermost/mattermost-plugin-github/issues/1) - Implement git-get-head
 `
 
 		actual, err := renderTemplate("issueNotification", &github.IssuesEvent{
@@ -1310,7 +1310,7 @@ func TestIssueNotification(t *testing.T) {
 func TestPullRequestReviewNotification(t *testing.T) {
 	t.Run("approved", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) approved your pull request [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456) - Leverage git-get-head
+[panda](https://forgejo.com/panda) approved your pull request [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456) - Leverage git-get-head
 >Excited to see git-get-head land!
 `
 
@@ -1319,7 +1319,7 @@ func TestPullRequestReviewNotification(t *testing.T) {
 			PullRequest: &pullRequest,
 			Sender:      &user,
 			Review: &github.PullRequestReview{
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456"),
 				State:   sToP("approved"),
 				Body:    sToP("Excited to see git-get-head land!"),
 			},
@@ -1330,7 +1330,7 @@ func TestPullRequestReviewNotification(t *testing.T) {
 
 	t.Run("changes_requested", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) requested changes on your pull request [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456) - Leverage git-get-head
+[panda](https://forgejo.com/panda) requested changes on your pull request [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456) - Leverage git-get-head
 >Excited to see git-get-head land!
 `
 
@@ -1339,7 +1339,7 @@ func TestPullRequestReviewNotification(t *testing.T) {
 			PullRequest: &pullRequest,
 			Sender:      &user,
 			Review: &github.PullRequestReview{
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456"),
 				State:   sToP("changes_requested"),
 				Body:    sToP("Excited to see git-get-head land!"),
 			},
@@ -1350,7 +1350,7 @@ func TestPullRequestReviewNotification(t *testing.T) {
 
 	t.Run("commented", func(t *testing.T) {
 		expected := `
-[panda](https://github.com/panda) commented on your pull request [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456) - Leverage git-get-head
+[panda](https://forgejo.com/panda) commented on your pull request [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456) - Leverage git-get-head
 >Excited to see git-get-head land!
 `
 
@@ -1359,7 +1359,7 @@ func TestPullRequestReviewNotification(t *testing.T) {
 			PullRequest: &pullRequest,
 			Sender:      &user,
 			Review: &github.PullRequestReview{
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456"),
 				State:   sToP("commented"),
 				Body:    sToP("Excited to see git-get-head land!"),
 			},
@@ -1369,7 +1369,7 @@ func TestPullRequestReviewNotification(t *testing.T) {
 	})
 	t.Run("approved with mentions", withGitHubUserNameMapping(func(t *testing.T) {
 		expected := `
-@pandabot approved your pull request [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456) - Leverage git-get-head
+@pandabot approved your pull request [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456) - Leverage git-get-head
 >Excited to see git-get-head land!
 >` + usernameMentions + `
 `
@@ -1379,7 +1379,7 @@ func TestPullRequestReviewNotification(t *testing.T) {
 			PullRequest: &pullRequest,
 			Sender:      &user,
 			Review: &github.PullRequestReview{
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456"),
 				State:   sToP("approved"),
 				Body:    sToP("Excited to see git-get-head land!\n" + gitHubMentions),
 			},
@@ -1389,7 +1389,7 @@ func TestPullRequestReviewNotification(t *testing.T) {
 	}))
 	t.Run("review with no body", withGitHubUserNameMapping(func(t *testing.T) {
 		expected := `
-@pandabot approved your pull request [mattermost-plugin-github#42](https://github.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456) - Leverage git-get-head
+@pandabot approved your pull request [mattermost-plugin-github#42](https://forgejo.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456) - Leverage git-get-head
 `
 
 		actual, err := renderTemplate("pullRequestReviewNotification", &github.PullRequestReviewEvent{
@@ -1397,7 +1397,7 @@ func TestPullRequestReviewNotification(t *testing.T) {
 			PullRequest: &pullRequest,
 			Sender:      &user,
 			Review: &github.PullRequestReview{
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/pull/42#issuecomment-123456"),
 				State:   sToP("approved"),
 			},
 		})
@@ -1409,7 +1409,7 @@ func TestPullRequestReviewNotification(t *testing.T) {
 func TestReleaseNotification(t *testing.T) {
 	t.Run("created", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) [panda](https://github.com/panda) created a release [v0.0.1](https://github.com/mattermost/mattermost-plugin-github/releases/tag/v0.0.1)`
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) [panda](https://forgejo.com/panda) created a release [v0.0.1](https://forgejo.com/mattermost/mattermost-plugin-github/releases/tag/v0.0.1)`
 
 		actual, err := renderTemplate("newReleaseEvent", &github.ReleaseEvent{
 			Repo:   &repo,
@@ -1417,7 +1417,7 @@ func TestReleaseNotification(t *testing.T) {
 			Action: sToP(actionCreated),
 			Release: &github.RepositoryRelease{
 				TagName: sToP("v0.0.1"),
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/releases/tag/v0.0.1"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/releases/tag/v0.0.1"),
 			},
 		})
 		require.NoError(t, err)
@@ -1426,7 +1426,7 @@ func TestReleaseNotification(t *testing.T) {
 
 	t.Run("deleted", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) [panda](https://github.com/panda) deleted a release [v0.0.1](https://github.com/mattermost/mattermost-plugin-github/releases/tag/v0.0.1)`
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) [panda](https://forgejo.com/panda) deleted a release [v0.0.1](https://forgejo.com/mattermost/mattermost-plugin-github/releases/tag/v0.0.1)`
 
 		actual, err := renderTemplate("newReleaseEvent", &github.ReleaseEvent{
 			Repo:   &repo,
@@ -1434,7 +1434,7 @@ func TestReleaseNotification(t *testing.T) {
 			Action: sToP(actionDeleted),
 			Release: &github.RepositoryRelease{
 				TagName: sToP("v0.0.1"),
-				HTMLURL: sToP("https://github.com/mattermost/mattermost-plugin-github/releases/tag/v0.0.1"),
+				HTMLURL: sToP("https://forgejo.com/mattermost/mattermost-plugin-github/releases/tag/v0.0.1"),
 			},
 		})
 		require.NoError(t, err)
@@ -1483,10 +1483,10 @@ func TestGitHubUsernameRegex(t *testing.T) {
 func TestWorkflowJobNotification(t *testing.T) {
 	t.Run("failed", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) mock-workflow-name workflow failed (triggered by [panda](https://github.com/panda))
-Job failed: [mock-workflow-job](https://github.com/mattermost/mattermost-plugin-github/actions/runs/12345/job/67890)
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) mock-workflow-name workflow failed (triggered by [panda](https://forgejo.com/panda))
+Job failed: [mock-workflow-job](https://forgejo.com/mattermost/mattermost-plugin-github/actions/runs/12345/job/67890)
 Step failed: mock-job-2
-Commit: https://github.com/mattermost/mattermost-plugin-github/commit/1234567890`
+Commit: https://forgejo.com/mattermost/mattermost-plugin-github/commit/1234567890`
 
 		actual, err := renderTemplate("newWorkflowJob", &github.WorkflowJobEvent{
 			Repo:   &repo,
@@ -1496,7 +1496,7 @@ Commit: https://github.com/mattermost/mattermost-plugin-github/commit/1234567890
 				Conclusion:   sToP("failure"),
 				Name:         sToP("mock-workflow-job"),
 				HeadSHA:      sToP("1234567890"),
-				HTMLURL:      sToP("https://github.com/mattermost/mattermost-plugin-github/actions/runs/12345/job/67890"),
+				HTMLURL:      sToP("https://forgejo.com/mattermost/mattermost-plugin-github/actions/runs/12345/job/67890"),
 				WorkflowName: sToP("mock-workflow-name"),
 				Steps: []*github.TaskStep{
 					{
@@ -1520,8 +1520,8 @@ Commit: https://github.com/mattermost/mattermost-plugin-github/commit/1234567890
 
 	t.Run("success", func(t *testing.T) {
 		expected := `
-[\[mattermost-plugin-github\]](https://github.com/mattermost/mattermost-plugin-github) mock-workflow-name workflow succeeded (triggered by [panda](https://github.com/panda))
-Commit: https://github.com/mattermost/mattermost-plugin-github/commit/1234567890`
+[\[mattermost-plugin-github\]](https://forgejo.com/mattermost/mattermost-plugin-github) mock-workflow-name workflow succeeded (triggered by [panda](https://forgejo.com/panda))
+Commit: https://forgejo.com/mattermost/mattermost-plugin-github/commit/1234567890`
 
 		actual, err := renderTemplate("newWorkflowJob", &github.WorkflowJobEvent{
 			Repo:   &repo,
@@ -1531,7 +1531,7 @@ Commit: https://github.com/mattermost/mattermost-plugin-github/commit/1234567890
 				Conclusion:   sToP("success"),
 				Name:         sToP("mock-workflow-job"),
 				HeadSHA:      sToP("1234567890"),
-				HTMLURL:      sToP("https://github.com/mattermost/mattermost-plugin-github/actions/runs/12345/job/67890"),
+				HTMLURL:      sToP("https://forgejo.com/mattermost/mattermost-plugin-github/actions/runs/12345/job/67890"),
 				WorkflowName: sToP("mock-workflow-name"),
 				Steps: []*github.TaskStep{
 					{

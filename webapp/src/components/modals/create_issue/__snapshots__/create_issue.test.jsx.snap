@@ -26,7 +26,7 @@ exports[`CreateIssueModal should render correctly with default props 1`] = `
     closeLabel="Close"
   >
     <ModalTitle>
-      Create GitHub Issue
+      Create Forgejo Issue
     </ModalTitle>
   </ModalHeader>
   <form
@@ -43,7 +43,7 @@ exports[`CreateIssueModal should render correctly with default props 1`] = `
       }
     >
       <div>
-        <Connect(GithubRepoSelector)
+        <Connect(ForgejoRepoSelector)
           addValidate={[Function]}
           onChange={[Function]}
           removeValidate={[Function]}
@@ -58,7 +58,7 @@ exports[`CreateIssueModal should render correctly with default props 1`] = `
         />
         <Input
           id="title"
-          label="Title for the GitHub Issue"
+          label="Title for the Forgejo Issue"
           maxLength={256}
           onChange={[Function]}
           readOnly={false}
@@ -67,7 +67,7 @@ exports[`CreateIssueModal should render correctly with default props 1`] = `
           value=""
         />
         <Input
-          label="Description for the GitHub Issue"
+          label="Description for the Forgejo Issue"
           maxLength={null}
           onChange={[Function]}
           readOnly={false}

@@ -16,7 +16,7 @@ const TEST_CLIENT_SECRET = 'b'.repeat(40);
 
 export default {
     setup: () => {
-        test('/github setup', async ({pw, page, pages}) => {
+        test('/forgejo setup', async ({pw, page, pages}) => {
             const {adminClient, adminUser} = await pw.getAdminClient();
             if (adminUser === null) {
                 throw new Error('can not get adminUser');
@@ -28,7 +28,7 @@ export default {
             const c = new pages.ChannelsPage(page);
 
             // # Run setup command
-            await postMessage('/github setup', c, page);
+            await postMessage('/forgejo setup', c, page);
 
             // # Wait for new messages to ensure the last post is the one we want
             // await waitForNewMessages(page);
@@ -41,7 +41,7 @@ export default {
             await clickPostAction('Continue', c);
             await clickPostAction('Continue', c);
 
-            // # Fill out interactive dialog for GitHub client id and client secret
+            // # Fill out interactive dialog for Forgejo client id and client secret
             await fillTextField('client_id', TEST_CLIENT_ID, page);
             await fillTextField('client_secret', TEST_CLIENT_SECRET, page);
             await submitDialog(page);
@@ -72,7 +72,7 @@ export default {
         });
     },
     connect: () => {
-        test('/github connect', async ({pages, page, pw}) => {
+        test('/forgejo connect', async ({pages, page, pw}) => {
             const {adminClient, adminUser} = await pw.getAdminClient();
             if (adminUser === null) {
                 throw new Error('can not get adminUser');
@@ -84,7 +84,7 @@ export default {
             const c = new pages.ChannelsPage(page);
 
             // # Run connect command
-            await postMessage('/github connect', c, page);
+            await postMessage('/forgejo connect', c, page);
 
             // # Wait for new messages to ensure the last post is the one we want
             await waitForNewMessages(page);
@@ -94,7 +94,7 @@ export default {
             let locatorId = getPostMessageLocatorId(postId);
 
             let text = await page.locator(locatorId).innerText();
-            expect(text).toEqual('Click here to link your GitHub account.');
+            expect(text).toEqual('Click here to link your Forgejo account.');
 
             // * Verify connect link has correct URL
             const connectLinkLocator = `${locatorId} a`;
@@ -109,11 +109,11 @@ export default {
             locatorId = getPostMessageLocatorId(postId);
 
             text = await page.locator(locatorId).innerText();
-            expect(text).toContain('Welcome to the Mattermost GitHub Plugin!');
+            expect(text).toContain('Welcome to the Mattermost Forgejo Plugin!');
         });
     },
     disconnect: () => {
-        test('/github disconnect', async ({pages, page, pw}) => {
+        test('/forgejo disconnect', async ({pages, page, pw}) => {
             const {adminClient, adminUser} = await pw.getAdminClient();
             if (adminUser === null) {
                 throw new Error('can not get adminUser');
@@ -125,7 +125,7 @@ export default {
             const c = new pages.ChannelsPage(page);
 
             // # Run connect command
-            await postMessage('/github disconnect', c, page);
+            await postMessage('/forgejo disconnect', c, page);
 
             // # Wait for new messages to ensure the last post is the one we want
             await waitForNewMessages(page);
@@ -134,8 +134,7 @@ export default {
             const postId = await post.getId();
             const locatorId = getPostMessageLocatorId(postId);
             const text = await page.locator(locatorId).innerText();
-            await expect(text).toContain('Disconnected your GitHub account');
+            await expect(text).toContain('Disconnected your Forgejo account');
         });
     },
 };
-

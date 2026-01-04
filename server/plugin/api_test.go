@@ -113,15 +113,15 @@ func TestPlugin_ServeHTTP(t *testing.T) {
 			p := NewPlugin()
 			p.setConfiguration(
 				&Configuration{
-					GitHubOrg:               "mockOrg",
-					GitHubOAuthClientID:     "mockID",
-					GitHubOAuthClientSecret: "mockSecret",
-					WebhookSecret:           "",
-					EnablePrivateRepo:       false,
-					EncryptionKey:           "mockKey",
-					EnterpriseBaseURL:       "",
-					EnterpriseUploadURL:     "",
-					EnableCodePreview:       "disable",
+					ForgejoOrg:               "mockOrg",
+					ForgejoOAuthClientID:     "mockID",
+					ForgejoOAuthClientSecret: "mockSecret",
+					WebhookSecret:            "",
+					EnablePrivateRepo:        false,
+					EncryptionKey:            "mockKey",
+					BaseURL:                  "",
+					UploadURL:                "",
+					EnableCodePreview:        "disable",
 				})
 			p.initializeAPI()
 			p.SetAPI(&plugintest.API{})
@@ -216,8 +216,8 @@ func TestGetToken(t *testing.T) {
 			name:   "User info not found in store",
 			userID: "mockUserID",
 			setup: func() {
-				mockAPI.On("LogError", "error occurred while getting the github user info", "UserID", MockUserID, "error", &APIErrorResponse{Message: "Unable to get user info.", StatusCode: http.StatusInternalServerError})
-				mockKvStore.EXPECT().Get("mockUserID"+githubTokenKey, gomock.Any()).Return(errors.New("not found")).Times(1)
+				mockAPI.On("LogError", "error occurred while getting the forgejo user info", "UserID", MockUserID, "error", &APIErrorResponse{Message: "Unable to get user info.", StatusCode: http.StatusInternalServerError})
+				mockKvStore.EXPECT().Get("mockUserID"+forgejoTokenKey, gomock.Any()).Return(errors.New("not found")).Times(1)
 			},
 			assertions: func(t *testing.T, rec *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusInternalServerError, rec.Result().StatusCode)
@@ -231,8 +231,8 @@ func TestGetToken(t *testing.T) {
 			setup: func() {
 				encryptedToken, err := encrypt([]byte("dummyEncryptKey1"), MockAccessToken)
 				assert.NoError(t, err)
-				mockKvStore.EXPECT().Get("mockUserID"+githubTokenKey, gomock.Any()).DoAndReturn(func(key string, value **GitHubUserInfo) error {
-					*value = &GitHubUserInfo{
+				mockKvStore.EXPECT().Get("mockUserID"+forgejoTokenKey, gomock.Any()).DoAndReturn(func(key string, value **ForgejoUserInfo) error {
+					*value = &ForgejoUserInfo{
 						Token: &oauth2.Token{
 							AccessToken: encryptedToken,
 						},
@@ -277,10 +277,10 @@ func TestGetConfig(t *testing.T) {
 	authorizedHeader.Add("Mattermost-Plugin-ID", "somePluginId")
 
 	config := &Configuration{
-		GitHubOrg:               "mockOrg",
-		GitHubOAuthClientID:     "mockID",
-		GitHubOAuthClientSecret: "mockSecret",
-		EncryptionKey:           "mockKey",
+		ForgejoOrg:               "mockOrg",
+		ForgejoOAuthClientID:     "mockID",
+		ForgejoOAuthClientSecret: "mockSecret",
+		EncryptionKey:            "mockKey",
 	}
 
 	for name, test := range map[string]struct {
@@ -333,7 +333,7 @@ func TestGetConfig(t *testing.T) {
 	}
 }
 
-func TestGetGitHubUser(t *testing.T) {
+func TestGetForgejoUser(t *testing.T) {
 	mockKvStore, mockAPI, mockLogger, mockLoggerWith, mockContext := GetTestSetup(t)
 	p := getPluginTest(mockAPI, mockKvStore)
 
@@ -349,7 +349,7 @@ func TestGetGitHubUser(t *testing.T) {
 			requestBody: "invalid-json",
 			setup: func() {
 				mockLogger.EXPECT().WithError(gomock.Any()).Return(mockLoggerWith).Times(1)
-				mockLoggerWith.EXPECT().Warnf("Error decoding GitHubUserRequest from JSON body").Times(1)
+				mockLoggerWith.EXPECT().Warnf("Error decoding ForgejoUserRequest from JSON body").Times(1)
 			},
 			assertions: func(t *testing.T, rec *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, rec.Result().StatusCode)
@@ -384,7 +384,7 @@ func TestGetGitHubUser(t *testing.T) {
 			},
 		},
 		{
-			name:        "User is not connected to a GitHub account.",
+			name:        "User is not connected to a Forgejo account.",
 			requestBody: `{"user_id": "mockUserID"}`,
 			setup: func() {
 				mockKvStore.EXPECT().Get(gomock.Any(), gomock.Any()).Return(nil).Times(1)
@@ -394,7 +394,7 @@ func TestGetGitHubUser(t *testing.T) {
 
 				var response APIErrorResponse
 				_ = json.NewDecoder(rec.Body).Decode(&response)
-				assert.Contains(t, response.Message, "User is not connected to a GitHub account.")
+				assert.Contains(t, response.Message, "User is not connected to a Forgejo account.")
 			},
 		},
 		{
@@ -403,7 +403,7 @@ func TestGetGitHubUser(t *testing.T) {
 			setup: func() {
 				dummyUserInfo, err := GetMockGHUserInfo(p)
 				assert.NoError(t, err)
-				mockKvStore.EXPECT().Get("mockUserID"+githubTokenKey, gomock.Any()).DoAndReturn(func(key string, value **GitHubUserInfo) error {
+				mockKvStore.EXPECT().Get("mockUserID"+forgejoTokenKey, gomock.Any()).DoAndReturn(func(key string, value **ForgejoUserInfo) error {
 					*value = dummyUserInfo
 					return nil
 				}).Times(1)
@@ -421,10 +421,10 @@ func TestGetGitHubUser(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			req := httptest.NewRequest(http.MethodPost, "/github/user", strings.NewReader(tc.requestBody))
+			req := httptest.NewRequest(http.MethodPost, "/forgejo/user", strings.NewReader(tc.requestBody))
 			rec := httptest.NewRecorder()
 
-			p.getGitHubUser(mockContext, rec, req)
+			p.getForgejoUser(mockContext, rec, req)
 
 			tc.assertions(t, rec)
 		})
@@ -524,7 +524,7 @@ func TestUpdateSettings(t *testing.T) {
 				})
 				mockKvStore.EXPECT().Set(gomock.Any(), gomock.Any()).Return(false, errors.New("store error")).Times(1)
 				mockLogger.EXPECT().WithError(gomock.Any()).Return(mockLoggerWith).Times(1)
-				mockLoggerWith.EXPECT().Errorf("Failed to store GitHub user info").Times(1)
+				mockLoggerWith.EXPECT().Errorf("Failed to store Forgejo user info").Times(1)
 			},
 			expectedStatusCode: http.StatusInternalServerError,
 			assertions: func(t *testing.T, rec *httptest.ResponseRecorder) {

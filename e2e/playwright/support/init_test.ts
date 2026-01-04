@@ -14,7 +14,7 @@ import {runOAuthServer} from './init_mock_oauth_server';
 import {preferencesForUser} from './user';
 
 const pluginDistPath = path.join(__dirname, '../../../dist');
-const pluginId = 'github';
+const pluginId = 'forgejo';
 
 // # One time tasks
 test.beforeAll(async ({pw}) => {
@@ -69,23 +69,23 @@ test.beforeEach(async ({pw}) => {
     await cleanUpBotDMs(adminClient, adminUser.id, pluginId);
 });
 
-type GithubPluginSettings = {
+type ForgejoPluginSettings = {
     connecttoprivatebydefault: string | null;
     enablecodepreview: string;
     enableleftsidebar: boolean;
     enableprivaterepo: boolean | null;
     enablewebhookeventlogging: boolean;
     encryptionkey: string;
-    enterprisebaseurl: string;
-    enterpriseuploadurl: string;
-    githuboauthclientid: string;
-    githuboauthclientsecret: string;
-    githuborg: string | null;
+    baseurl: string;
+    uploadurl: string;
+    forgejooauthclientid: string;
+    forgejooauthclientsecret: string;
+    forgejoorg: string | null;
     usepreregisteredapplication: boolean;
     webhooksecret: string;
 }
 
-const githubConfig: GithubPluginSettings = {
+const githubConfig: ForgejoPluginSettings = {
     githuboauthclientid: '',
     githuboauthclientsecret: '',
 
@@ -95,9 +95,8 @@ const githubConfig: GithubPluginSettings = {
     enableprivaterepo: null,
     enablewebhookeventlogging: false,
     encryptionkey: 'S9YasItflsENXnrnKUhMJkdosXTsr6Tc',
-    enterprisebaseurl: '',
-    enterpriseuploadurl: '',
-    githuborg: null,
-    usepreregisteredapplication: false,
+    baseurl: '',
+    uploadurl: '',
+    forgejoorg: null,
     webhooksecret: 'w7HfrdZ+mtJKnWnsmHMh8eKzWpQH7xET',
 };
