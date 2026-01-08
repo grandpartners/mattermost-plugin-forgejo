@@ -1181,9 +1181,6 @@ func (p *Plugin) completeConnectUserToForgejo(c *Context, w http.ResponseWriter,
 		return
 	}
 
-	// track the successful connection
-	p.TrackUserEvent("account_connected", c.UserID, nil)
-
 	userInfo := &ForgejoUserInfo{
 		UserID:          state.UserID,
 		Token:           tok,
