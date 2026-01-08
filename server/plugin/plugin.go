@@ -173,8 +173,30 @@ func (p *Plugin) GetGitHubClient(ctx context.Context, userID string) (*github.Cl
 }
 
 func (p *Plugin) githubConnectUser(_ context.Context, info *ForgejoUserInfo) *github.Client {
-	tok := *info.Token
-	return p.githubConnectToken(tok)
+	config, err := p.getOAuthConfig()
+	if err != nil {
+		p.client.Log.Error("Failed to create OAuth config", "error", err.Error())
+		return nil
+	}
+
+	// Create a refreshable token source that saves tokens after refresh
+	tokenSource := config.TokenSource(context.Background(), info.Token)
+	refreshableSource := &refreshableTokenSource{
+		source:   tokenSource,
+		userInfo: info,
+		plugin:   p,
+	}
+
+	// Create HTTP client with the refreshable token source
+	httpClient := oauth2.NewClient(context.Background(), refreshableSource)
+
+	client, err := getGitHubClient(httpClient, p.getConfiguration())
+	if err != nil {
+		p.client.Log.Error("Failed to create GitHub client", "error", err.Error())
+		return nil
+	}
+
+	return client
 }
 
 func (p *Plugin) forgejoConnect(info *ForgejoUserInfo) *http.Client {
@@ -183,8 +205,16 @@ func (p *Plugin) forgejoConnect(info *ForgejoUserInfo) *http.Client {
 		p.client.Log.Error("Failed to create OAuth config", "error", err.Error())
 		return nil
 	}
-	tok := *info.Token
-	return config.Client(context.Background(), &tok)
+
+	// Create a refreshable token source that saves tokens after refresh
+	tokenSource := config.TokenSource(context.Background(), info.Token)
+	refreshableSource := &refreshableTokenSource{
+		source:   tokenSource,
+		userInfo: info,
+		plugin:   p,
+	}
+
+	return oauth2.NewClient(context.Background(), refreshableSource)
 }
 
 func (p *Plugin) githubConnectToken(token oauth2.Token) *github.Client {
@@ -566,6 +596,35 @@ type UserSettings struct {
 	ExcludeTeamReviewNotifications []string `json:"exclude_team_review_notifications"`
 }
 
+// refreshableTokenSource wraps an oauth2.TokenSource and automatically saves refreshed tokens
+type refreshableTokenSource struct {
+	source   oauth2.TokenSource
+	userInfo *ForgejoUserInfo
+	plugin   *Plugin
+	mu       sync.Mutex
+}
+
+func (r *refreshableTokenSource) Token() (*oauth2.Token, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	token, err := r.source.Token()
+	if err != nil {
+		return nil, err
+	}
+
+	// If the token was refreshed (AccessToken changed), save it
+	if token.AccessToken != r.userInfo.Token.AccessToken {
+		r.plugin.client.Log.Debug("Token was refreshed, saving new token")
+		r.userInfo.Token = token
+		if saveErr := r.plugin.storeForgejoUserInfo(r.userInfo); saveErr != nil {
+			r.plugin.client.Log.Error("Failed to save refreshed token", "error", saveErr.Error())
+		}
+	}
+
+	return token, nil
+}
+
 func (p *Plugin) storeForgejoUserInfo(info *ForgejoUserInfo) error {
 	config := p.getConfiguration()
 
@@ -574,11 +633,28 @@ func (p *Plugin) storeForgejoUserInfo(info *ForgejoUserInfo) error {
 		return errors.Wrap(err, "error occurred while encrypting access token")
 	}
 
+	// Store original tokens temporarily
+	originalAccessToken := info.Token.AccessToken
+	originalRefreshToken := info.Token.RefreshToken
+
 	info.Token.AccessToken = encryptedToken
+
+	// Encrypt refresh token if it exists
+	if info.Token.RefreshToken != "" {
+		encryptedRefreshToken, err := encrypt([]byte(config.EncryptionKey), info.Token.RefreshToken)
+		if err != nil {
+			return errors.Wrap(err, "error occurred while encrypting refresh token")
+		}
+		info.Token.RefreshToken = encryptedRefreshToken
+	}
 
 	if _, err := p.store.Set(info.UserID+forgejoTokenKey, info); err != nil {
 		return errors.Wrap(err, "error occurred while trying to store user info into KV store")
 	}
+
+	// Restore original tokens after storage
+	info.Token.AccessToken = originalAccessToken
+	info.Token.RefreshToken = originalRefreshToken
 
 	return nil
 }
@@ -602,6 +678,16 @@ func (p *Plugin) getForgejoUserInfo(userID string) (*ForgejoUserInfo, *APIErrorR
 	}
 
 	userInfo.Token.AccessToken = unencryptedToken
+
+	// Decrypt refresh token if it exists
+	if userInfo.Token.RefreshToken != "" {
+		unencryptedRefreshToken, err := decrypt([]byte(config.EncryptionKey), userInfo.Token.RefreshToken)
+		if err != nil {
+			p.client.Log.Error("Failed to decrypt refresh token", "error", err.Error())
+			return nil, &APIErrorResponse{ID: "", Message: "Unable to decrypt refresh token.", StatusCode: http.StatusInternalServerError}
+		}
+		userInfo.Token.RefreshToken = unencryptedRefreshToken
+	}
 
 	return userInfo, nil
 }
