@@ -1081,7 +1081,7 @@ func (p *Plugin) connectUserToForgejo(c *Context, w http.ResponseWriter, r *http
 		return
 	}
 
-	url := conf.AuthCodeURL(state.Token, oauth2.AccessTypeOnline)
+	url := conf.AuthCodeURL(state.Token, oauth2.AccessTypeOffline)
 
 	ch := p.oauthBroker.SubscribeOAuthComplete(c.UserID)
 
