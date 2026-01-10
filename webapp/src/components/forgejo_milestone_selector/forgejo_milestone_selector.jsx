@@ -32,10 +32,18 @@ export default class ForgejoMilestoneSelector extends PureComponent {
             return [];
         }
 
-        return options.data.map((option) => ({
-            value: option.number,
-            label: option.title,
-        }));
+        return options.data
+            .map((option) => {
+                const value = option.id ?? option.number;
+                if (value === null || value === undefined) {
+                    return null;
+                }
+                return {
+                    value,
+                    label: option.title,
+                };
+            })
+            .filter(Boolean);
     };
 
     render() {
