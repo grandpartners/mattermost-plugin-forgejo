@@ -28,11 +28,7 @@ export default class GithubLabelSelector extends PureComponent<Props> {
 
         const options = await this.props.actions.getLabelOptions(this.props.repoName);
 
-        if (options.error) {
-            throw new Error('Failed to load labels');
-        }
-
-        if (!options || !options.data) {
+        if (options?.error || !options?.data) {
             return [];
         }
 

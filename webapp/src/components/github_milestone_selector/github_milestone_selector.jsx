@@ -24,11 +24,7 @@ export default class GithubMilestoneSelector extends PureComponent {
 
         const options = await this.props.actions.getMilestoneOptions(this.props.repoName);
 
-        if (options.error) {
-            throw new Error('Failed to load milestones');
-        }
-
-        if (!options || !options.data) {
+        if (options?.error || !options?.data) {
             return [];
         }
 
