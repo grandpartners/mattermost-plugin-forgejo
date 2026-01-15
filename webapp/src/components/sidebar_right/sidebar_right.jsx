@@ -134,7 +134,7 @@ export default class SidebarRight extends React.PureComponent {
 
             forgejoItems = yourAssignments;
             title = 'Your Assignments';
-            listUrl = baseURL + '/pulls?type=assigned&sort=recentupdate&state=open&q=&fuzzy=true';
+            listUrl = baseURL + '/issues?type=assigned&sort=recentupdate&state=open&q=&fuzzy=true';
             break;
         default:
             break;
