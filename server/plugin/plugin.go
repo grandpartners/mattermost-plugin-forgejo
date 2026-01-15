@@ -847,15 +847,18 @@ func (p *Plugin) PostToDo(info *ForgejoUserInfo, userID string) error {
 func (p *Plugin) GetToDo(info *ForgejoUserInfo) (string, error) {
 	config := p.getConfiguration()
 	orgList := config.getOrganizations()
+	if len(orgList) == 0 {
+		orgList = []string{""}
+	}
 	baseURL := config.getBaseURL()
 
 	forgejoClient := p.forgejoConnect(info)
 
 	var resultReview, resultAssignee, resultOpenPR []*github.Issue
 	for _, org := range orgList {
-		resultReviewData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "review_requested"))
-		resultOpenPRData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "created"))
-		resultAssigneeData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "assigned"))
+		resultReviewData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "review_requested", "pulls"))
+		resultOpenPRData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "created", "pulls"))
+		resultAssigneeData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "assigned", "issues"))
 
 		resultReview = fillGhIssue(resultReviewData, baseURL, resultReview)
 		resultOpenPR = fillGhIssue(resultOpenPRData, baseURL, resultOpenPR)
@@ -971,15 +974,18 @@ func makeForgejoRequest[T any](p *Plugin, forgejoClient *http.Client, requestURL
 func (p *Plugin) HasUnreads(info *ForgejoUserInfo) bool {
 	config := p.getConfiguration()
 	orgList := config.getOrganizations()
+	if len(orgList) == 0 {
+		orgList = []string{""}
+	}
 	baseURL := config.getBaseURL()
 
 	forgejoClient := p.forgejoConnect(info)
 
 	var resultReview, resultAssignee, resultOpenPR []*github.Issue
 	for _, org := range orgList {
-		resultReviewData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "review_requested"))
-		resultOpenPRData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "created"))
-		resultAssigneeData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "assigned"))
+		resultReviewData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "review_requested", "pulls"))
+		resultOpenPRData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "created", "pulls"))
+		resultAssigneeData := makeForgejoRequest[[]FIssue](p, forgejoClient, p.createRequestUrl(baseURL, org, "assigned", "issues"))
 
 		resultReview = fillGhIssue(resultReviewData, baseURL, resultReview)
 		resultOpenPR = fillGhIssue(resultOpenPRData, baseURL, resultOpenPR)

@@ -822,8 +822,12 @@ func getRequestResponse(c *UserContext, forgejoClient *http.Client, requestURL s
 	return result
 }
 
-func (p *Plugin) createRequestUrl(baseUrl string, org string, filter string) string {
-	return fmt.Sprintf("%sapi/v1/repos/issues/search?owner=%s&%s=true&type=pulls&state=open&limit=100", baseUrl, org, filter)
+func (p *Plugin) createRequestUrl(baseUrl string, org string, filter string, issueType string) string {
+	if org == "" {
+		return fmt.Sprintf("%sapi/v1/repos/issues/search?%s=true&type=%s&state=open&limit=100", baseUrl, filter, issueType)
+	}
+
+	return fmt.Sprintf("%sapi/v1/repos/issues/search?owner=%s&%s=true&type=%s&state=open&limit=100", baseUrl, org, filter, issueType)
 }
 
 func getGithubLabels(labels []*FLabel) []*github.Label {
@@ -1434,7 +1438,7 @@ func (p *Plugin) getMentions(c *UserContext, w http.ResponseWriter, r *http.Requ
 
 	var result []*github.Issue
 	for _, org := range orgList {
-		resultData := getRequestResponse(c, forgejoClient, p.createRequestUrl(baseURL, org, "mentioned"))
+		resultData := getRequestResponse(c, forgejoClient, p.createRequestUrl(baseURL, org, "mentioned", "issues"))
 		result = fillGhIssue(resultData, baseURL, result)
 	}
 	p.writeJSON(w, result)
@@ -1780,11 +1784,14 @@ func (p *Plugin) getLHSData(c *UserContext) (reviewResp []*github.Issue, assignm
 	baseURL := config.getBaseURL()
 
 	orgsList := config.getOrganizations()
+	if len(orgsList) == 0 {
+		orgsList = []string{""}
+	}
 	var resultReview, resultAssignee, resultOpenPR []*github.Issue
 	for _, org := range orgsList {
-		resultReviewData := getRequestResponse(c, forgejoClient, p.createRequestUrl(baseURL, org, "review_requested"))
-		resultAssigneeData := getRequestResponse(c, forgejoClient, p.createRequestUrl(baseURL, org, "assigned"))
-		resultOpenPRData := getRequestResponse(c, forgejoClient, p.createRequestUrl(baseURL, org, "created"))
+		resultReviewData := getRequestResponse(c, forgejoClient, p.createRequestUrl(baseURL, org, "review_requested", "pulls"))
+		resultAssigneeData := getRequestResponse(c, forgejoClient, p.createRequestUrl(baseURL, org, "assigned", "issues"))
+		resultOpenPRData := getRequestResponse(c, forgejoClient, p.createRequestUrl(baseURL, org, "created", "pulls"))
 
 		resultReview = fillGhIssue(resultReviewData, baseURL, resultReview)
 		resultAssignee = fillGhIssue(resultAssigneeData, baseURL, resultAssignee)
