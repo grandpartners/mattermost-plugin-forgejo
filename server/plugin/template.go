@@ -465,6 +465,7 @@ Assignees: {{range $i, $el := .Assignees -}} {{- if $i}}, {{end}}{{template "FUs
 		"* `/forgejo help` - Display Slash Command help text\n" +
 		"* `/forgejo about` - Display build details of the plugin\n" +
 		"* `/forgejo todo` - Get a list of unread messages and pull requests awaiting your review\n" +
+		"* `/forgejo reminder` - Send your daily reminder now\n" +
 		"* `/forgejo subscriptions list` - Will list the current channel subscriptions\n" +
 		"* `/forgejo subscriptions add owner[/repo] [flags]` - Subscribe the current channel to receive notifications about opened pull requests and issues for an organization or repository\n" +
 		"  * `flags` currently supported:\n" +

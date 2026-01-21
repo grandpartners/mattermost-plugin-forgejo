@@ -291,6 +291,16 @@ func TestExecuteCommand(t *testing.T) {
 			expectedMsg:    "###### Mattermost Forgejo Plugin - Slash Command Help\n",
 			SetupMockStore: func(mks *mocks.MockKvStore) {},
 		},
+
+		"reminder command without connection": {
+			commandArgs: &model.CommandArgs{Command: "/forgejo reminder", ChannelId: "test-channelID", RootId: "test-rootID", UserId: "test-userID"},
+			expectedMsg: "You must connect your account to Forgejo first.",
+			SetupMockStore: func(mks *mocks.MockKvStore) {
+				mks.EXPECT().Get("test-userID"+forgejoTokenKey, gomock.Any()).DoAndReturn(func(_ string, _ any) error {
+					return nil
+				}).Times(1)
+			},
+		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {

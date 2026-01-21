@@ -13,6 +13,25 @@ import (
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
+func TestSplitMessageByMaxPostSize(t *testing.T) {
+	text := "line1\nline2\nline3\n"
+	assert.Equal(t, []string{text}, splitMessageByMaxPostSize(text, 100))
+
+	parts := splitMessageByMaxPostSize(text, 6)
+	assert.Equal(t, []string{"line1\n", "line2\n", "line3\n"}, parts)
+
+	parts = splitMessageByMaxPostSize("абвгд", 2)
+	assert.Equal(t, []string{"аб", "вг", "д"}, parts)
+}
+
+func TestSplitMessageWithPrefix(t *testing.T) {
+	parts := splitMessageWithPrefix("first\nsecond", 30)
+	assert.Equal(t, []string{"(part 1/1)\nfirst\nsecond"}, parts)
+
+	parts = splitMessageWithPrefix("first\nsecond", 10)
+	assert.Equal(t, []string{"(part 1/2)\nfirst\n", "(part 2/2)\nsecond"}, parts)
+}
+
 func TestParseGitHubUsernameFromText(t *testing.T) {
 	tcs := []struct {
 		Text     string
@@ -277,7 +296,7 @@ func TestGetToDoDisplayText(t *testing.T) {
 			var repo *FRepository
 			if tc.in.repository != nil {
 				repo = &FRepository{
-					Owner: &FUser{Login: tc.in.repository.Owner.Login},
+					Owner:   &FUser{Login: tc.in.repository.Owner.Login},
 					HTMLURL: tc.in.repository.HTMLURL,
 					Name:    tc.in.repository.Name,
 				}

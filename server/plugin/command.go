@@ -132,7 +132,7 @@ func (p *Plugin) getCommand(config *Configuration) (*model.Command, error) {
 	return &model.Command{
 		Trigger:              "forgejo",
 		AutoComplete:         true,
-		AutoCompleteDesc:     "Available commands: connect, disconnect, todo, subscriptions, issue, default-repo, me, mute, settings, help, about",
+		AutoCompleteDesc:     "Available commands: connect, disconnect, todo, reminder, subscriptions, issue, default-repo, me, mute, settings, help, about",
 		AutoCompleteHint:     "[command]",
 		AutocompleteData:     getAutocompleteData(config),
 		AutocompleteIconData: iconData,
@@ -714,6 +714,35 @@ func (p *Plugin) handleTodo(_ *plugin.Context, _ *model.CommandArgs, _ []string,
 	return text
 }
 
+func (p *Plugin) handleReminder(_ *plugin.Context, _ *model.CommandArgs, _ []string, userInfo *ForgejoUserInfo) string {
+	if !userInfo.Settings.DailyReminder {
+		return "Daily reminders are turned off. Enable them with `/forgejo settings reminders on`."
+	}
+
+	text, err := p.GetToDo(userInfo)
+	if err != nil {
+		p.client.Log.Warn("Failed to build daily reminder", "error", err.Error())
+		return "Encountered an error sending your daily reminder."
+	}
+
+	if userInfo.Settings.DailyReminderOnChange {
+		if storeErr := p.StoreDailySummaryText(userInfo.UserID, text); storeErr != nil {
+			p.client.Log.Warn("Failed to update daily reminder summary", "error", storeErr.Error())
+			return "Encountered an error sending your daily reminder."
+		}
+	}
+
+	p.CreateBotDMPost(userInfo.UserID, text, "custom_git_todo")
+
+	userInfo.LastToDoPostAt = model.GetMillis()
+	if err = p.storeForgejoUserInfo(userInfo); err != nil {
+		p.client.Log.Warn("Failed to update reminder timestamp", "error", err.Error())
+		return "Sent your daily reminder, but failed to update reminder status."
+	}
+
+	return "Sent your daily reminder."
+}
+
 func (p *Plugin) handleMe(_ *plugin.Context, _ *model.CommandArgs, _ []string, userInfo *ForgejoUserInfo) string {
 	githubClient := p.githubConnectUser(context.Background(), userInfo)
 	var gitUser *github.User
@@ -1143,7 +1172,7 @@ func getAutocompleteData(config *Configuration) *model.AutocompleteData {
 		return github
 	}
 
-	github := model.NewAutocompleteData("forgejo", "[command]", "Available commands: connect, disconnect, todo, subscriptions, issue, default-repo, me, mute, settings, help, about")
+	github := model.NewAutocompleteData("forgejo", "[command]", "Available commands: connect, disconnect, todo, reminder, subscriptions, issue, default-repo, me, mute, settings, help, about")
 
 	connect := model.NewAutocompleteData("connect", "", "Connect your Mattermost account to your Forgejo account")
 	if config.EnablePrivateRepo {
@@ -1161,6 +1190,9 @@ func getAutocompleteData(config *Configuration) *model.AutocompleteData {
 
 	todo := model.NewAutocompleteData("todo", "", "Get a list of unread messages and pull requests awaiting your review")
 	github.AddCommand(todo)
+
+	reminder := model.NewAutocompleteData("reminder", "", "Send your daily reminder now")
+	github.AddCommand(reminder)
 
 	subscriptions := model.NewAutocompleteData("subscriptions", "[command]", "Available commands: list, add, delete")
 

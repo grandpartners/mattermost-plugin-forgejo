@@ -17,7 +17,9 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
+	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/pkg/errors"
 )
@@ -300,7 +302,7 @@ func getCodeMarkdown(user, repo, repoPath, word, lines string, isTruncated bool)
 
 // getToDoDisplayText returns the text to be displayed in todo listings.
 func getToDoDisplayText(baseURL, title, url, notifType string, repository *FRepository) string {
-	var owner, repo, repoURL, titlePart string
+	var owner, repo, repoURL string
 	if repository == nil {
 		owner, repo = parseOwnerAndRepo(url, baseURL)
 		repoURL = fmt.Sprintf("%s%s/%s", baseURL, owner, repo)
@@ -310,19 +312,29 @@ func getToDoDisplayText(baseURL, title, url, notifType string, repository *FRepo
 		repoURL = *repository.HTMLURL
 	}
 
+	// Compact repo name if too long
 	repoWords := strings.Split(repo, "-")
 	if len(repo) > 20 && len(repoWords) > 1 {
 		repo = "..." + repoWords[len(repoWords)-1]
 	}
 	repoPart := fmt.Sprintf("[%s/%s](%s)", owner, repo, repoURL)
 
-	if len(title) > 80 {
-		title = strings.TrimSpace(title[:80]) + "..."
+	// Reduce title length to 50 chars for more compact display
+	maxTitleLength := 50
+	if len(title) > maxTitleLength {
+		// Trim by runes to handle unicode properly
+		titleRunes := []rune(title)
+		if len(titleRunes) > maxTitleLength {
+			title = strings.TrimSpace(string(titleRunes[:maxTitleLength])) + "..."
+		}
 	}
 
-	titlePart = fmt.Sprintf(": %s", title)
+	// More compact format without colon and extra spaces
+	var titlePart string
 	if url != "" {
-		titlePart = fmt.Sprintf(": [%s](%s)", title, url)
+		titlePart = fmt.Sprintf("[%s](%s)", title, url)
+	} else {
+		titlePart = title
 	}
 
 	if notifType == "" {
@@ -371,6 +383,158 @@ func getSiteURL(client *pluginapi.Client) (string, error) {
 	}
 
 	return strings.TrimSuffix(*siteURL, "/"), nil
+}
+
+func getMaxPostSize() int {
+	return model.PostMessageMaxRunesV2
+}
+
+func splitMessageByMaxPostSize(message string, maxSize int) []string {
+	if maxSize <= 0 {
+		return []string{message}
+	}
+
+	if utf8.RuneCountInString(message) <= maxSize {
+		return []string{message}
+	}
+
+	lines := strings.Split(message, "\n")
+	parts := make([]string, 0, len(lines))
+	var buf strings.Builder
+	currentSize := 0
+
+	for i, line := range lines {
+		lineWithNewline := line
+		if i < len(lines)-1 {
+			lineWithNewline += "\n"
+		}
+
+		lineSize := utf8.RuneCountInString(lineWithNewline)
+		if lineSize > maxSize {
+			if buf.Len() > 0 {
+				parts = append(parts, buf.String())
+				buf.Reset()
+				currentSize = 0
+			}
+
+			for _, chunk := range splitStringByRunes(lineWithNewline, maxSize) {
+				parts = append(parts, chunk)
+			}
+			continue
+		}
+
+		if currentSize+lineSize > maxSize {
+			parts = append(parts, buf.String())
+			buf.Reset()
+			currentSize = 0
+		}
+
+		buf.WriteString(lineWithNewline)
+		currentSize += lineSize
+	}
+
+	if buf.Len() > 0 {
+		parts = append(parts, buf.String())
+	}
+
+	return parts
+}
+
+func splitMessageWithPrefix(message string, maxSize int) []string {
+	if maxSize <= 0 {
+		return []string{message}
+	}
+
+	if utf8.RuneCountInString(message) <= maxSize {
+		return []string{message}
+	}
+
+	// Estimate initial split to determine number of parts needed
+	// Use conservative header size estimate (20 chars for up to 999 parts)
+	const estimatedHeaderSize = 20
+	initialUsableSize := maxSize - estimatedHeaderSize
+	if initialUsableSize <= 0 {
+		// maxSize is too small for our estimate, use minimal header size
+		initialUsableSize = maxSize - 12 // "(part 1/1)\n" = 12 chars minimum
+		if initialUsableSize <= 0 {
+			// maxSize is extremely small, just split without headers
+			return splitMessageByMaxPostSize(message, maxSize)
+		}
+	}
+
+	// Do initial split to determine number of parts
+	initialParts := splitMessageByMaxPostSize(message, initialUsableSize)
+	numParts := len(initialParts)
+
+	// Calculate actual max header size based on number of parts
+	// Format: "(part XXX/YYY)\n" where XXX and YYY are the part numbers
+	maxHeaderSize := utf8.RuneCountInString(fmt.Sprintf("(part %d/%d)\n", numParts, numParts))
+	actualUsableSize := maxSize - maxHeaderSize
+
+	if actualUsableSize <= 0 {
+		// Header is too large, fallback to trimming each part
+		parts := initialParts
+		result := make([]string, 0, len(parts))
+		for i, part := range parts {
+			header := fmt.Sprintf("(part %d/%d)\n", i+1, len(parts))
+			headerSize := utf8.RuneCountInString(header)
+			// Ensure the final chunk doesn't exceed maxSize
+			if headerSize+utf8.RuneCountInString(part) > maxSize {
+				// Trim the part to fit
+				availableSize := maxSize - headerSize
+				if availableSize > 0 {
+					partRunes := []rune(part)
+					if len(partRunes) > availableSize {
+						part = string(partRunes[:availableSize])
+					}
+				} else {
+					part = ""
+				}
+			}
+			result = append(result, header+part)
+		}
+		return result
+	}
+
+	// Check if we need to re-split with more accurate size
+	if actualUsableSize < initialUsableSize-5 {
+		// Re-split with correct usable size (only if significantly different)
+		parts := splitMessageByMaxPostSize(message, actualUsableSize)
+		result := make([]string, 0, len(parts))
+		for i, part := range parts {
+			result = append(result, fmt.Sprintf("(part %d/%d)\n%s", i+1, len(parts), part))
+		}
+		return result
+	}
+
+	// Use initial split with headers
+	result := make([]string, 0, len(initialParts))
+	for i, part := range initialParts {
+		result = append(result, fmt.Sprintf("(part %d/%d)\n%s", i+1, len(initialParts), part))
+	}
+	return result
+}
+
+func splitStringByRunes(s string, maxSize int) []string {
+	if maxSize <= 0 {
+		return []string{s}
+	}
+
+	runes := []rune(s)
+	if len(runes) <= maxSize {
+		return []string{s}
+	}
+
+	parts := make([]string, 0, (len(runes)/maxSize)+1)
+	for len(runes) > maxSize {
+		parts = append(parts, string(runes[:maxSize]))
+		runes = runes[maxSize:]
+	}
+	if len(runes) > 0 {
+		parts = append(parts, string(runes))
+	}
+
+	return parts
 }
 
 // lastN returns the last n characters of a string, with the rest replaced by *.

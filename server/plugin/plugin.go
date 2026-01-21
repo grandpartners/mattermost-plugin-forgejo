@@ -108,6 +108,7 @@ func NewPlugin() *Plugin {
 		"unsubscribe":   p.handleUnsubscribe,
 		"disconnect":    p.handleDisconnect,
 		"todo":          p.handleTodo,
+		"reminder":      p.handleReminder,
 		"mute":          p.handleMuteCommand,
 		"me":            p.handleMe,
 		"help":          p.handleHelp,
@@ -777,16 +778,21 @@ func (p *Plugin) CreateBotDMPost(userID, message, postType string) {
 		return
 	}
 
-	post := &model.Post{
-		UserId:    p.BotUserID,
-		ChannelId: channel.Id,
-		Message:   message,
-		Type:      postType,
-	}
+	maxPostSize := getMaxPostSize()
+	parts := splitMessageWithPrefix(message, maxPostSize)
 
-	if err = p.client.Post.CreatePost(post); err != nil {
-		p.client.Log.Warn("Failed to create DM post", "userID", userID, "post", post, "error", err.Error())
-		return
+	for _, chunk := range parts {
+		post := &model.Post{
+			UserId:    p.BotUserID,
+			ChannelId: channel.Id,
+			Message:   chunk,
+			Type:      postType,
+		}
+
+		if err = p.client.Post.CreatePost(post); err != nil {
+			p.client.Log.Warn("Failed to create DM post", "userID", userID, "post", post, "error", err.Error())
+			return
+		}
 	}
 }
 
